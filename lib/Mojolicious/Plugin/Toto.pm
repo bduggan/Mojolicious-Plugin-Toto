@@ -20,12 +20,13 @@ sub register {
     $app->routes->route('/toto')->detour(app => Toto::app());
 
     my $conf = do $conf_file;
+    my @nouns = grep !ref($_), @$conf;
     for ($app, Toto::app()) {
-        $_->helper(toto_config => sub { $conf });
+        $_->helper(toto_config => sub { @$conf });
+        $_->helper(nouns => sub { @nouns });
     }
 
-    my %conf = @$conf;
-    for my $noun (keys %conf) {
+    for my $noun (@nouns) {
         $app->log->debug("Making controller class for $noun");
         my $new = join '::', qw/Toto Controller/, b($noun)->camelize->to_string;
         my $var = "@". join "::", $new, "ISA";
@@ -54,7 +55,10 @@ get '/:controller' => {
 1;
 __DATA__
 @@ top.html.ep
-config is:
 
-<%= dumper(toto_config) =%>
+% for my $noun (nouns) {
+%= link_to url_for("plural", { controller => $noun }) => begin
+%= $noun
+%= end
+% }
 
