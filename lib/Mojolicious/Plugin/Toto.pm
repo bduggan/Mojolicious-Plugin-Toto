@@ -45,20 +45,25 @@ sub default {
 package Toto;
 use Mojolicious::Lite;
 
-get '/' => 'top';
+get '/' => { layout => "menu" } =>'top';
 
 get '/:controller' => {
     action => "default",
-    namespace => "Toto::Controller"
+    namespace => "Toto::Controller",
+    layout => "menu"
     } => 'plural';
 
 1;
 __DATA__
-@@ top.html.ep
-
+@@ layouts/menu.html.ep
 % for my $noun (nouns) {
 %= link_to url_for("plural", { controller => $noun }) => begin
 %= $noun
 %= end
 % }
+<div>
+%= content
+</div>
 
+@@ top.html.ep
+welcome to toto
