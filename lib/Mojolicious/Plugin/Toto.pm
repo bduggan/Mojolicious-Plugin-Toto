@@ -34,6 +34,11 @@ sub register {
         my $new = join '::', qw/Toto Controller/, b($noun)->camelize->to_string;
         my $var = "@". join "::", $new, "ISA";
         eval "push $var, q[Toto::Controller]" unless $new->isa("Toto::Controller");
+        for my $action ( @{$conf{$noun}{one}}, @{$conf{$noun}{many}}) {
+            no strict 'refs';
+            next if $new->can($action);
+            *{$new."::$action"} = sub { shift->render_text("$action $noun not yet implemented") };
+        }
     }
 }
 
@@ -48,13 +53,13 @@ sub default {
 package Toto;
 use Mojolicious::Lite;
 
-get '/' => { layout => "menu" } =>'top';
+get '/' => { layout => "menu" } => 'top';
 
-get '/:controller' => {
-    action => "default",
+get '/:controller/:action' => {
+    action    => "default",
     namespace => "Toto::Controller",
-    layout => "menu"
-    } => 'plural';
+    layout    => "menu_plurals"
+} => 'plural';
 
 1;
 __DATA__
@@ -68,8 +73,25 @@ __DATA__
 %= content
 </div>
 
+@@ layouts/menu_plurals.html.ep
+% for my $noun (nouns) {
+%= link_to url_for("plural", { controller => $noun }) => begin
+%= $noun
+%= end
+% }
+<div>
+% for my $action (many($controller)) {
+%= link_to url_for("plural", { controller => $controller, action => $action }) => begin
+%= $action
+%= end
+% }
+</div>
+<div>
+%= content
+</div>
+
 @@ plural.html.ep
-<%= $controller %> (many) : <%= join ',', many($controller) %>
+plural selection page
 
 @@ top.html.ep
 welcome to toto
