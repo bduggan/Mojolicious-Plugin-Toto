@@ -20,10 +20,13 @@ sub register {
     $app->routes->route('/toto')->detour(app => Toto::app());
 
     my $conf = do $conf_file;
+    my %conf = @$conf;
     my @nouns = grep !ref($_), @$conf;
     for ($app, Toto::app()) {
-        $_->helper(toto_config => sub { @$conf });
-        $_->helper(nouns => sub { @nouns });
+        $_->helper( toto_config => sub { @$conf } );
+        $_->helper( nouns       => sub { @nouns } );
+        $_->helper( many        => sub { @{ $conf{ $_[1] }{many} } } );
+        $_->helper( one         => sub { @{ $conf{ $_[1] }{one} } } );
     }
 
     for my $noun (@nouns) {
@@ -66,7 +69,7 @@ __DATA__
 </div>
 
 @@ plural.html.ep
-plural for <%= $self %>
+<%= $controller %> (many) : <%= join ',', many($controller) %>
 
 @@ top.html.ep
 welcome to toto
