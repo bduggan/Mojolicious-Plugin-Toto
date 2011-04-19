@@ -39,7 +39,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 sub default {
     my $c = shift;
-    $c->render_text("this is the default for $c");
+    $c->render(template => "plural");
 }
 
 package Toto;
@@ -64,6 +64,9 @@ __DATA__
 <div>
 %= content
 </div>
+
+@@ plural.html.ep
+plural for <%= $self %>
 
 @@ top.html.ep
 welcome to toto
