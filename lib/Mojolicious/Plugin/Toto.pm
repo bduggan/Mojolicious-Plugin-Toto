@@ -56,9 +56,7 @@ get '/:controller/:action' => {
         return $c->redirect_to( "plural" => action => $first, controller => $controller )
     }
     my $class = join '::', $c->stash("namespace"), b($controller)->camelize;
-    unless ( $class->can($action) ) {
-        $c->render_text("not implemented $controller, $action");
-    }
+    $c->render(class => $class, template => "plural") unless $class->can($action);
   } => 'plural';
 
 get '/:controller/:action/(*key)' => {
@@ -117,7 +115,8 @@ __DATA__
 This is the page for a single <%= $controller %>
 
 @@ plural.html.ep
-plural selection page
+your page to <%= $action %> <%= $controller %>s goes here<br>
+(<%= $class =%>::<%= $action %>)
 
 @@ top.html.ep
 welcome to toto
