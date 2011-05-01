@@ -28,18 +28,6 @@ sub register {
         $_->helper( many        => sub { @{ $conf{ $_[1] }{many} } } );
         $_->helper( one         => sub { @{ $conf{ $_[1] }{one} } } );
     }
-
-    for my $noun (@nouns) {
-        $app->log->debug("Making controller class for $noun");
-        my $new = join '::', qw/Toto Controller/, b($noun)->camelize->to_string;
-        my $var = "@". join "::", $new, "ISA";
-        eval "push $var, q[Toto::Controller]" unless $new->isa("Toto::Controller");
-        for my $action ( @{$conf{$noun}{one}}, @{$conf{$noun}{many}}) {
-            no strict 'refs';
-            next if $new->can($action);
-            *{$new."::$action"} = sub { shift->render_text("$action $noun not yet implemented") };
-        }
-    }
 }
 
 package Toto::Controller;
@@ -52,6 +40,7 @@ sub default {
 
 package Toto;
 use Mojolicious::Lite;
+use Mojo::ByteStream qw/b/;
 
 get '/' => { layout => "menu" } => 'top';
 
@@ -59,7 +48,24 @@ get '/:controller/:action' => {
     action    => "default",
     namespace => "Toto::Controller",
     layout    => "menu_plurals"
-} => 'plural';
+  } => sub {
+    my $c = shift;
+    my ( $action, $controller ) = ( $c->stash("action"), $c->stash("controller") );
+    if ($c->stash("action") eq 'default') {
+        my $first = [ $c->many($controller) ]->[0];
+        return $c->redirect_to( "plural" => action => $first, controller => $controller )
+    }
+    my $class = join '::', $c->stash("namespace"), b($controller)->camelize;
+    unless ( $class->can($action) ) {
+        $c->render_text("not implemented $controller, $action");
+    }
+  } => 'plural';
+
+get '/:controller/:action/(*key)' => {
+    action => "default",
+    namespace => "Toto::Controller",
+    layout => "menu_single"
+} => 'single';
 
 1;
 __DATA__
@@ -89,6 +95,26 @@ __DATA__
 <div>
 %= content
 </div>
+
+@@ layouts/menu_single.html.ep
+% for my $noun (nouns) {
+%= link_to url_for("plural", { controller => $noun }) => begin
+%= $noun
+%= end
+% }
+<div>
+% for my $action (many($controller)) {
+%= link_to url_for("single", { controller => $controller, action => $action, key => $key }) => begin
+%= $action
+%= end
+% }
+</div>
+<div>
+%= content
+</div>
+
+@@ single.html.ep
+This is the page for a single <%= $controller %>
 
 @@ plural.html.ep
 plural selection page
