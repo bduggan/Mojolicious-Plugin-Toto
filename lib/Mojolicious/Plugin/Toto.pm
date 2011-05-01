@@ -63,6 +63,16 @@ get '/:controller/:action/(*key)' => {
     action => "default",
     namespace => "Toto::Controller",
     layout => "menu_single"
+} => sub {
+    my $c = shift;
+    my ( $action, $controller, $key ) =
+      ( $c->stash("action"), $c->stash("controller"), $c->stash("key") );
+    if ($c->stash("action") eq 'default') {
+        my $first = [ $c->one($controller) ]->[0];
+        return $c->redirect_to( "single" => action => $first, controller => $controller, key => $key )
+    }
+    my $class = join '::', $c->stash("namespace"), b($controller)->camelize;
+    $c->render(class => $class, template => "single") unless $class->can($action);
 } => 'single';
 
 1;
@@ -101,7 +111,7 @@ __DATA__
 %= end
 % }
 <div>
-% for my $action (many($controller)) {
+% for my $action (one($controller)) {
 %= link_to url_for("single", { controller => $controller, action => $action, key => $key }) => begin
 %= $action
 %= end
@@ -112,11 +122,19 @@ __DATA__
 </div>
 
 @@ single.html.ep
-This is the page for a single <%= $controller %>
+This is the page for <%= $action %> for
+<%= $controller %> <%= $key %>.
 
 @@ plural.html.ep
 your page to <%= $action %> <%= $controller %>s goes here<br>
-(<%= $class =%>::<%= $action %>)
+(add <%= $class =%>::<%= $action %>)<br>
+<hr>
+% for (1..10) {
+%= link_to 'single', { controller => $controller, key => $_ } => begin
+<%= $controller %> <%= $_ %><br>
+%= end
+% }
+<hr>
 
 @@ top.html.ep
 welcome to toto
