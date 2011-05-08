@@ -1,6 +1,6 @@
 =head1 NAME
 
-Mojolicious::Plugin::Toto - the toto interface paradigm under mojolicious
+Mojolicious::Plugin::Toto - the toto navigational structure
 
 =head1 DESCRIPTION
 
@@ -78,16 +78,25 @@ get '/:controller/:action/(*key)' => {
 1;
 __DATA__
 @@ layouts/menu.html.ep
-<!doctype html><html>
-<head><title><%= title %></title></head>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+<head>
+<title><%= title %></title>
+%= stylesheet '/toto.css';
+</head>
 <body>
+<div id="left-sidebar">
 %= link_to 'Toto' => 'toto';
+<ul>
 % for my $noun (nouns) {
+<li>
 %= link_to url_for("plural", { controller => $noun }) => begin
-%= $noun
+<%= $noun =%>s
 %= end
 % }
-<div>
+</div>
+</ul>
+<div id="content">
 %= content "second_header";
 %= content
 </div>
@@ -135,3 +144,31 @@ your page to <%= $action %> <%= $controller %>s goes here<br>
 
 @@ toto.html.ep
 welcome to toto
+
+@@ toto.css
+body{
+  background-color:#abb;
+  margin:0;
+  padding:0 0 0 150px;
+ }
+ div#left-sidebar{
+  background-color:#bab;
+  position:absolute;
+  top:0;
+  left:0;
+  width:150px;
+  height:100%;
+ }
+ @media screen{
+  body>div#left-sidebar{
+   position:fixed;
+  }
+ }
+ * html body{
+  overflow:hidden;
+ }
+ * html div#content{
+  height:100%;
+  overflow:auto;
+ }
+
