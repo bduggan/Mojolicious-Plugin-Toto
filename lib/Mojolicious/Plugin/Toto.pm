@@ -14,13 +14,13 @@ use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::ByteStream qw/b/;
 
 sub register {
-    my ($self, $app) = @_;
-    my $conf_file = basename($ENV{MOJO_EXE} || $0).'.toto';
-    -e $conf_file or die("Cannot find $conf_file");
-    $app->routes->route('/toto')->detour(app => Toto::app());
-
-    my $conf = do $conf_file;
+    my $self = shift;
+    my $app = shift;
+    my $location = (!ref $_[0] ? shift : "/toto");
+    my $conf = shift;
     my %conf = @$conf;
+    $app->routes->route($location)->detour(app => Toto::app());
+
     my @nouns = grep !ref($_), @$conf;
     for ($app, Toto::app()) {
         $_->helper( toto_config => sub { @$conf } );
@@ -42,7 +42,7 @@ package Toto;
 use Mojolicious::Lite;
 use Mojo::ByteStream qw/b/;
 
-get '/' => { layout => "menu" } => 'top';
+get '/' => { layout => "menu" } => 'toto';
 
 get '/:controller/:action' => {
     action    => "default",
@@ -78,21 +78,25 @@ get '/:controller/:action/(*key)' => {
 1;
 __DATA__
 @@ layouts/menu.html.ep
+<!doctype html><html>
+<head><title><%= title %></title></head>
+<body>
+%= link_to 'Toto' => 'toto';
 % for my $noun (nouns) {
 %= link_to url_for("plural", { controller => $noun }) => begin
 %= $noun
 %= end
 % }
 <div>
+%= content "second_header";
 %= content
 </div>
+</body>
+</html>
 
 @@ layouts/menu_plurals.html.ep
-% for my $noun (nouns) {
-%= link_to url_for("plural", { controller => $noun }) => begin
-%= $noun
-%= end
-% }
+% layout 'menu';
+%= content second_header => begin
 <div>
 % for my $action (many($controller)) {
 %= link_to url_for("plural", { controller => $controller, action => $action }) => begin
@@ -100,16 +104,11 @@ __DATA__
 %= end
 % }
 </div>
-<div>
-%= content
-</div>
+% end
 
 @@ layouts/menu_single.html.ep
-% for my $noun (nouns) {
-%= link_to url_for("plural", { controller => $noun }) => begin
-%= $noun
-%= end
-% }
+% layout 'menu';
+%= content second_header => begin
 <div>
 % for my $action (one($controller)) {
 %= link_to url_for("single", { controller => $controller, action => $action, key => $key }) => begin
@@ -117,9 +116,7 @@ __DATA__
 %= end
 % }
 </div>
-<div>
-%= content
-</div>
+% end
 
 @@ single.html.ep
 This is the page for <%= $action %> for
@@ -127,7 +124,7 @@ This is the page for <%= $action %> for
 
 @@ plural.html.ep
 your page to <%= $action %> <%= $controller %>s goes here<br>
-(add <%= $class =%>::<%= $action %>)<br>
+(add <%= $class %>::<%= $action %>)<br>
 <hr>
 % for (1..10) {
 %= link_to 'single', { controller => $controller, key => $_ } => begin
@@ -136,5 +133,5 @@ your page to <%= $action %> <%= $controller %>s goes here<br>
 % }
 <hr>
 
-@@ top.html.ep
+@@ toto.html.ep
 welcome to toto
