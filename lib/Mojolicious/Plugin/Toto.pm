@@ -87,9 +87,9 @@ __DATA__
 <body>
 <div id="left-sidebar">
 %= link_to 'Toto' => 'toto';
-<ul>
+<ul class="left-menu">
 % for my $noun (nouns) {
-<li>
+<li <%== $noun eq $controller ? q[ class="selected"] : "" =%>>
 %= link_to url_for("plural", { controller => $noun }) => begin
 <%= $noun =%>s
 %= end
@@ -132,9 +132,9 @@ This is the page for <%= $action %> for
 <%= $controller %> <%= $key %>.
 
 @@ plural.html.ep
+<hr>
 your page to <%= $action %> <%= $controller %>s goes here<br>
 (add <%= $class %>::<%= $action %>)<br>
-<hr>
 % for (1..10) {
 %= link_to 'single', { controller => $controller, key => $_ } => begin
 <%= $controller %> <%= $_ %><br>
@@ -147,28 +147,36 @@ welcome to toto
 
 @@ toto.css
 body{
-  background-color:#abb;
+  background-color:#adb;
   margin:0;
   padding:0 0 0 150px;
+}
+div#left-sidebar{
+ background-color:#bab;
+ position:absolute;
+ top:0;
+ left:0;
+ width:150px;
+ height:100%;
+}
+@media screen{
+ body>div#left-sidebar{
+  position:fixed;
  }
- div#left-sidebar{
-  background-color:#bab;
-  position:absolute;
-  top:0;
-  left:0;
-  width:150px;
-  height:100%;
- }
- @media screen{
-  body>div#left-sidebar{
-   position:fixed;
-  }
- }
- * html body{
-  overflow:hidden;
- }
- * html div#content{
-  height:100%;
-  overflow:auto;
- }
+}
+* html body{
+ overflow:hidden;
+}
+* html div#content{
+ height:100%;
+ overflow:auto;
+}
+ul.left-menu li {
+    list-style-type:none;
+    list-style-position:outside;
+    width:100%;
+}
+ul.left-menu li.selected {
+background-color:#adb;
+}
 
