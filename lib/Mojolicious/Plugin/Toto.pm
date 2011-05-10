@@ -14,16 +14,18 @@ use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::ByteStream qw/b/;
 
 sub register {
-    my $self = shift;
-    my $app = shift;
-    my $location = (!ref $_[0] ? shift : "/toto");
-    my $conf = shift;
-    my %conf = @$conf;
+    my $self     = shift;
+    my $app      = shift;
+    my $location = ( !ref $_[0] ? shift : "/toto" );
+    my $conf     = shift;
+    my %conf     = @$conf;
+
     $app->routes->route($location)->detour(app => Toto::app());
 
     my @nouns = grep !ref($_), @$conf;
     for ($app, Toto::app()) {
         $_->helper( toto_config => sub { @$conf } );
+        $_->helper( app_name    => sub { basename($ENV{MOJO_EXE}) });
         $_->helper( nouns       => sub { @nouns } );
         $_->helper( many        => sub { @{ $conf{ $_[1] }{many} } } );
         $_->helper( one         => sub { @{ $conf{ $_[1] }{one} } } );
@@ -42,7 +44,7 @@ package Toto;
 use Mojolicious::Lite;
 use Mojo::ByteStream qw/b/;
 
-get '/' => { layout => "menu" } => 'toto';
+get '/' => { layout => "menu", controller => 'top' } => 'toto';
 
 get '/:controller/:action' => {
     action    => "default",
@@ -86,7 +88,6 @@ __DATA__
 </head>
 <body>
 <div id="left-sidebar">
-%= link_to 'Toto' => 'toto';
 <ul class="left-menu">
 % for my $noun (nouns) {
 <li <%== $noun eq $controller ? q[ class="selected"] : "" =%>>
@@ -94,8 +95,8 @@ __DATA__
 <%= $noun =%>s
 %= end
 % }
-</div>
 </ul>
+</div>
 <div id="content">
 %= content "second_header";
 %= content
@@ -106,10 +107,14 @@ __DATA__
 @@ layouts/menu_plurals.html.ep
 % layout 'menu';
 %= content second_header => begin
-<div>
-% for my $action (many($controller)) {
-%= link_to url_for("plural", { controller => $controller, action => $action }) => begin
-%= $action
+<div id='header'>
+<span class='home'>
+%= link_to 'Toto' => 'toto';
+</span>
+% for my $a (many($controller)) {
+% $class = ($action eq $a) ? "selected" : "unselected";
+%= link_to url_for("plural", { controller => $controller, action => $a }) => class => $class => begin
+%= $a
 %= end
 % }
 </div>
@@ -143,40 +148,70 @@ your page to <%= $action %> <%= $controller %>s goes here<br>
 <hr>
 
 @@ toto.html.ep
-welcome to toto
+<center>
+<br>
+Welcome to <%= app_name %><br>
+Please choose a menu item.
+</center>
 
 @@ toto.css
 body{
-  background-color:#adb;
   margin:0;
-  padding:0 0 0 150px;
+  padding:30px 0 0 110px;
+ }
+div#header{
+ position:absolute;
+ top:0;
+ left:0%;
+ width:90%;
+ height:30px;
+ background-color:#aff;
+ padding-left:110px;
+ z-index:-1;
 }
 div#left-sidebar{
- background-color:#bab;
  position:absolute;
  top:0;
  left:0;
- width:150px;
+ width:100px;
  height:100%;
+ background-color:#aaf;
+ padding-top:30px;
 }
 @media screen{
+ body>div#header{
+  position:fixed;
+ }
  body>div#left-sidebar{
+  height:100%;
   position:fixed;
  }
 }
 * html body{
  overflow:hidden;
-}
+} 
 * html div#content{
  height:100%;
  overflow:auto;
 }
+ul.left-menu {
+    margin-left:0px;
+    padding-left:0px;
+    }
 ul.left-menu li {
     list-style-type:none;
     list-style-position:outside;
+    padding-left:3px;
     width:100%;
 }
 ul.left-menu li.selected {
-background-color:#adb;
+    background-color:white;
 }
-
+ul.left-menu a {
+    color:black;
+    text-decoration:none;
+}
+.home {
+    float:right;
+    display:inline;
+    }
