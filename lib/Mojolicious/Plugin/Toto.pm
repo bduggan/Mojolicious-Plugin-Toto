@@ -149,7 +149,6 @@ This is the page for <%= $action %> for
 <%= $controller %> <%= $key %>.
 
 @@ plural.html.ep
-<hr>
 your page to <%= $action %> <%= $controller %>s goes here<br>
 (add <%= $class %>::<%= $action %>)<br>
 % for (1..10) {
@@ -157,7 +156,6 @@ your page to <%= $action %> <%= $controller %>s goes here<br>
 <%= $controller %> <%= $_ %><br>
 %= end
 % }
-<hr>
 
 @@ toto.html.ep
 <center>
@@ -167,14 +165,15 @@ Please choose a menu item.
 </center>
 
 @@ toto.css
-.globalnav {
+ul.globalnav {
 	position:relative;
 	float:left;
-	width:100%;
+	width:95%;
 	padding:0 0 1.75em 1em;
 	margin:0;
 	list-style:none;
 	line-height:1em;
+    overflow:hidden;
 }
 
 .globalnav LI {
@@ -225,7 +224,7 @@ Please choose a menu item.
 }
 
 #globalnav_with_item {
-	padding:0 0 4.75em 1em;
+	padding:0 0 2.75em 1em;
 }
 
 .globalnav UL li.selected_item {
@@ -255,10 +254,16 @@ Please choose a menu item.
 .globalnav UL A.here:visited {
 	color:#444;
 }
-div.item {
-    border:1px solid black;
-    z-index:109;
-    width:100%;
-    text-align:center;
-    font-weight:bold;
+html,body {
+    height:90%;
+    }
+div#content {
+    margin:0;
+	padding:0 0 2.75em 1em;
+    clear:both;
+    background-color:#abb;
+    height:100%;
+    width:95%;
 }
+
+
