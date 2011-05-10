@@ -6,6 +6,10 @@ Mojolicious::Plugin::Toto - the toto navigational structure
 
 package Mojolicious::Plugin::Toto;
 
+=head1 SEE ALSO
+
+http://clagnut.com/sandbox/csstabs/
+
 =cut
 
 package Mojolicious::Plugin::Toto;
@@ -87,18 +91,21 @@ __DATA__
 %= stylesheet '/toto.css';
 </head>
 <body>
-<div id="left-sidebar">
-<ul class="left-menu">
+% my $key = stash 'key';
+<ul class="globalnav" <%== $key ? q[id="globalnav_with_item"] : "" %>>
 % for my $noun (nouns) {
-<li <%== $noun eq $controller ? q[ class="selected"] : "" =%>>
-%= link_to url_for("plural", { controller => $noun }) => begin
+<li>
+% my $class=($noun eq $controller ? "here" : "");
+%= link_to url_for("plural", { controller => $noun }) => class => $class => begin
 <%= $noun =%>s
 %= end
+% next unless $noun eq $controller;
+%= content "second_header";
+% } continue {
+</li>
 % }
 </ul>
-</div>
 <div id="content">
-%= content "second_header";
 %= content
 </div>
 </body>
@@ -107,29 +114,34 @@ __DATA__
 @@ layouts/menu_plurals.html.ep
 % layout 'menu';
 %= content second_header => begin
-<div id='header'>
-<span class='home'>
-%= link_to 'Toto' => 'toto';
-</span>
+<ul>
 % for my $a (many($controller)) {
-% $class = ($action eq $a) ? "selected" : "unselected";
+<li>
+% my $class = $action eq $a ? "here" : "";
 %= link_to url_for("plural", { controller => $controller, action => $a }) => class => $class => begin
 %= $a
 %= end
+</li>
 % }
-</div>
+</ul>
 % end
 
 @@ layouts/menu_single.html.ep
 % layout 'menu';
 %= content second_header => begin
-<div>
-% for my $action (one($controller)) {
-%= link_to url_for("single", { controller => $controller, action => $action, key => $key }) => begin
-%= $action
+<ul class="item">
+<li class="selected_item">
+<%= $controller %> <%= $key %>
+</li>
+% for my $a (one($controller)) {
+<li>
+% my $class = $action eq $a ? "here" : "";
+%= link_to url_for("single", { controller => $controller, action => $a, key => $key }) => class => $class => begin
+%= $a
 %= end
+</li>
 % }
-</div>
+</ul>
 % end
 
 @@ single.html.ep
@@ -155,63 +167,98 @@ Please choose a menu item.
 </center>
 
 @@ toto.css
-body{
-  margin:0;
-  padding:30px 0 0 110px;
- }
-div#header{
- position:absolute;
- top:0;
- left:0%;
- width:90%;
- height:30px;
- background-color:#aff;
- padding-left:110px;
- z-index:-1;
+.globalnav {
+	position:relative;
+	float:left;
+	width:100%;
+	padding:0 0 1.75em 1em;
+	margin:0;
+	list-style:none;
+	line-height:1em;
 }
-div#left-sidebar{
- position:absolute;
- top:0;
- left:0;
- width:100px;
- height:100%;
- background-color:#aaf;
- padding-top:30px;
+
+.globalnav LI {
+	float:left;
+	margin:0;
+	padding:0;
 }
-@media screen{
- body>div#header{
-  position:fixed;
- }
- body>div#left-sidebar{
-  height:100%;
-  position:fixed;
- }
+
+.globalnav A {
+	display:block;
+	color:#444;
+	text-decoration:none;
+	font-weight:bold;
+	background:#ddd;
+	margin:0;
+	padding:0.25em 1em;
+	border-left:1px solid #fff;
+	border-top:1px solid #fff;
+	border-right:1px solid #aaa;
 }
-* html body{
- overflow:hidden;
-} 
-* html div#content{
- height:100%;
- overflow:auto;
+
+.globalnav A:hover,
+.globalnav A:active,
+.globalnav A.here:link,
+.globalnav A.here:visited {
+	background:#bbb;
 }
-ul.left-menu {
-    margin-left:0px;
-    padding-left:0px;
-    }
-ul.left-menu li {
-    list-style-type:none;
-    list-style-position:outside;
-    padding-left:3px;
+
+.globalnav A.here:link,
+.globalnav A.here:visited {
+	position:relative;
+	z-index:102;
+}
+
+/*subnav*/
+
+.globalnav UL {
+	position:absolute;
+	left:0;
+	top:1.5em;
+	float:left;
+	background:#bbb;
+	width:100%;
+	margin:0;
+	padding:0.25em 0.25em 0.25em 1em;
+	list-style:none;
+	border-top:1px solid #fff;
+}
+
+#globalnav_with_item {
+	padding:0 0 4.75em 1em;
+}
+
+.globalnav UL li.selected_item {
+    color:red;
+    float:none;
+    text-align:center;
+}
+
+.globalnav UL LI {
+	float:left;
+	display:block;
+	margin-top:1px;
+}
+
+.globalnav UL A {
+	background:#bbb;
+	color:#fff;
+	display:inline;
+	margin:0;
+	padding:0 1em;
+	border:0
+}
+
+.globalnav UL A:hover,
+.globalnav UL A:active,
+.globalnav UL A.here:link,
+.globalnav UL A.here:visited {
+	color:#444;
+}
+div.item {
+    border:1px solid black;
+    z-index:109;
     width:100%;
+    text-align:center;
+    font-weight:bold;
 }
-ul.left-menu li.selected {
-    background-color:white;
-}
-ul.left-menu a {
-    color:black;
-    text-decoration:none;
-}
-.home {
-    float:right;
-    display:inline;
-    }
