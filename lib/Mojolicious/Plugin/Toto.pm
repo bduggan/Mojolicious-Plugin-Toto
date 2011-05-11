@@ -67,7 +67,10 @@ get '/:controller/:action' => {
         return $c->redirect_to( "plural" => action => $first, controller => $controller )
     }
     my $class = join '::', $c->stash("namespace"), b($controller)->camelize;
-    $c->render(class => $class, template => "plural") unless $class->can($action);
+    my $root = $c->app->renderer->root;
+    my ($template) = grep {-e "$root/$_.html.ep" } "$controller/$action", $action;
+    $c->stash->{template} = $template || 'plural';
+    $c->render(class => $class) unless $class->can($action);
   } => 'plural';
 
 get '/:controller/:action/(*key)' => {
@@ -83,7 +86,10 @@ get '/:controller/:action/(*key)' => {
         return $c->redirect_to( "single" => action => $first, controller => $controller, key => $key )
     }
     my $class = join '::', $c->stash("namespace"), b($controller)->camelize;
-    $c->render(class => $class, template => "single") unless $class->can($action);
+    my $root = $c->app->renderer->root;
+    my ($template) = grep {-e "$root/$_.html.ep" } "$controller/$action", $action;
+    $c->stash->{template} = $template || 'single';
+    $c->render(class => $class) unless $class->can($action);
 } => 'single';
 
 1;
