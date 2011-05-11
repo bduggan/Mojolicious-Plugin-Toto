@@ -24,19 +24,20 @@ our $VERSION = 0.01;
 sub register {
     my $self     = shift;
     my $app      = shift;
-    my $location = ( !ref $_[0] ? shift : "/toto" );
+    my $location = ( $_[0] && !ref $_[0] ? shift : "/toto" );
     my $conf     = shift;
-    my %conf     = @$conf;
+    my @menu     = @{$conf->{menu} || []};
+    my %menu     = @menu;
 
     $app->routes->route($location)->detour(app => Toto::app());
 
-    my @nouns = grep !ref($_), @$conf;
+    my @nouns = grep !ref($_), @menu;
     for ($app, Toto::app()) {
-        $_->helper( toto_config => sub { @$conf } );
+        $_->helper( toto_menu   => sub { @menu } );
         $_->helper( app_name    => sub { basename($ENV{MOJO_EXE}) });
         $_->helper( nouns       => sub { @nouns } );
-        $_->helper( many        => sub { @{ $conf{ $_[1] }{many} } } );
-        $_->helper( one         => sub { @{ $conf{ $_[1] }{one} } } );
+        $_->helper( many        => sub { @{ $menu{ $_[1] }{many} } } );
+        $_->helper( one         => sub { @{ $menu{ $_[1] }{one} } } );
     }
 }
 
@@ -52,7 +53,7 @@ package Toto;
 use Mojolicious::Lite;
 use Mojo::ByteStream qw/b/;
 
-get '/' => { layout => "menu", controller => 'top' } => 'toto';
+get '/' => { layout => "menu", controller => undef } => 'toto';
 
 get '/:controller/:action' => {
     action    => "default",
