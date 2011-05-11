@@ -24,8 +24,8 @@ our $VERSION = 0.01;
 sub register {
     my $self     = shift;
     my $app      = shift;
-    my $location = ( $_[0] && !ref $_[0] ? shift : "/toto" );
     my $conf     = shift;
+    my $location = $conf->{path} || '/toto';
     my @menu     = @{$conf->{menu} || []};
     my %menu     = @menu;
 
