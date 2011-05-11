@@ -16,6 +16,10 @@ package Mojolicious::Plugin::Toto;
 use File::Basename qw/basename/;
 use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::ByteStream qw/b/;
+use strict;
+use warnings;
+
+our $VERSION = 0.01;
 
 sub register {
     my $self     = shift;
@@ -89,22 +93,52 @@ __DATA__
 <head>
 <title><%= title %></title>
 %= stylesheet '/toto.css';
+<%= javascript 'http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js' %>
+ <%= javascript begin %>
+   if (typeof jQuery == 'undefined') {
+     var e = document.createElement('script');
+     e.src = '/js/jquery.js';
+     e.type = 'text/javascript';
+     document.getElementsByTagName("head")[0].appendChild(e);
+   }
+ <% end %>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.js"></script>
+%= stylesheet 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7/themes/smoothness/jquery-ui.css';
 </head>
 <body>
-% my $key = stash 'key';
-<ul class="globalnav" <%== $key ? q[id="globalnav_with_item"] : "" %>>
+
+<script>
+	$(function() {
+%#        ### TODO make a load function
+%#        which selects the right tab based on $action and $controller
+		var tabs = $( "#tabs" ).tabs({
+        select: function(event, ui) {
+        var url = $.data(ui.tab, 'load.tabs');
+        if( url ) {
+            location.href = url;
+            $tabs.tabs('select', '#' + ui.panel.id);
+            return false;
+        }
+        return true;
+    }}
+        );
+	});
+</script>
+
+<div id="tabs">
+<ul>
 % for my $noun (nouns) {
 <li>
-% my $class=($noun eq $controller ? "here" : "");
-%= link_to url_for("plural", { controller => $noun }) => class => $class => begin
+%= link_to url_for("plural", { controller => $noun }) => begin
 <%= $noun =%>s
 %= end
-% next unless $noun eq $controller;
-%= content "second_header";
-% } continue {
 </li>
 % }
 </ul>
+</div>
+
+%= content "second_header";
+
 <div id="content">
 %= content
 </div>
