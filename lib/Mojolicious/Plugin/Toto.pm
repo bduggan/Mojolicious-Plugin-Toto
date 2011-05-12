@@ -95,6 +95,7 @@ get '/:controller/:action/(*key)' => {
 1;
 __DATA__
 @@ layouts/menu.html.ep
+% use List::MoreUtils qw/first_index/;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
 <html>
 <head>
@@ -115,15 +116,14 @@ __DATA__
 <body>
 
 <script>
+% my $s = first_index(sub {$_ eq $controller},nouns);
 	$(function() {
-%#        ### TODO make a load function
-%#        which selects the right tab based on $action and $controller
 		var tabs = $( "#tabs" ).tabs({
+        selected: <%= $s || 0%>,
         select: function(event, ui) {
         var url = $.data(ui.tab, 'load.tabs');
         if( url ) {
             location.href = url;
-            $tabs.tabs('select', '#' + ui.panel.id);
             return false;
         }
         return true;
