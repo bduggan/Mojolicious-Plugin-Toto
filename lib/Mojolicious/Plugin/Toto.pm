@@ -53,7 +53,7 @@ package Toto;
 use Mojolicious::Lite;
 use Mojo::ByteStream qw/b/;
 
-get '/' => { layout => "menu", controller => undef } => 'toto';
+get '/' => { layout => "menu", controller => undef, action => undef, actions => undef } => 'toto';
 
 get '/:controller/:action' => {
     action    => "default",
@@ -70,6 +70,7 @@ get '/:controller/:action' => {
     my $root = $c->app->renderer->root;
     my ($template) = grep {-e "$root/$_.html.ep" } "$controller/$action", $action;
     $c->stash->{template} = $template || 'plural';
+    $c->stash(actions => [$c->many($controller) ]);
     $c->render(class => $class) unless $class->can($action);
   } => 'plural';
 
@@ -89,6 +90,7 @@ get '/:controller/:action/(*key)' => {
     my $root = $c->app->renderer->root;
     my ($template) = grep {-e "$root/$_.html.ep" } "$controller/$action", $action;
     $c->stash->{template} = $template || 'single';
+    $c->stash(actions => [ $c->one($controller) ]);
     $c->render(class => $class) unless $class->can($action);
 } => 'single';
 
@@ -128,8 +130,23 @@ __DATA__
         }
         return true;
     }}
-        );
+    );
 	});
+% my $t = first_index(sub {$_ eq $action},@$actions);
+    $(function() {
+		var tabs = $( "#second_tabs" ).tabs({
+        selected: <%= $t || 0 %>,
+        select: function(event, ui) {
+        var url = $.data(ui.tab, 'load.tabs');
+        if( url ) {
+            location.href = url;
+            return false;
+        }
+        return true;
+    }}
+    );
+	});
+
 </script>
 
 <div id="tabs">
@@ -142,12 +159,12 @@ __DATA__
 </li>
 % }
 </ul>
+
+<div id="second_tabs">
+%= content "second_header";
+%= content
 </div>
 
-%= content "second_header";
-
-<div id="content">
-%= content
 </div>
 </body>
 </html>
@@ -158,8 +175,7 @@ __DATA__
 <ul>
 % for my $a (many($controller)) {
 <li>
-% my $class = $action eq $a ? "here" : "";
-%= link_to url_for("plural", { controller => $controller, action => $a }) => class => $class => begin
+%= link_to url_for("plural", { controller => $controller, action => $a }) => begin
 %= $a
 %= end
 </li>
@@ -170,14 +186,11 @@ __DATA__
 @@ layouts/menu_single.html.ep
 % layout 'menu';
 %= content second_header => begin
-<ul class="item">
-<li class="selected_item">
-<%= $controller %> <%= $key %>
-</li>
+<center><%= $controller %> <%= $key %></center>
+<ul>
 % for my $a (one($controller)) {
 <li>
-% my $class = $action eq $a ? "here" : "";
-%= link_to url_for("single", { controller => $controller, action => $a, key => $key }) => class => $class => begin
+%= link_to url_for("single", { controller => $controller, action => $a, key => $key }) => begin
 %= $a
 %= end
 </li>
