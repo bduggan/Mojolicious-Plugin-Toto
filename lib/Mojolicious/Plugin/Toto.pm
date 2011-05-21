@@ -137,7 +137,11 @@ __DATA__
              <div class="toptab_container">
                 <ul class="toptabs">
 % for my $a (actions) {
-                    <li><a href="#foo"><%= $a =%></a></li>
+                    <li <%== $a eq $action ? q[ class="active"] : '' %>>
+                        <%= link_to 'plural', { controller => $controller, action => $a } => begin =%>
+                            <%= $a =%>
+                        <%= end =%>
+                    </li>
 % }
                 </ul>
              </div>
@@ -158,7 +162,12 @@ $("ul.tabs li").click(function() {
     $(activeTab).fadeIn(); //Fade in the active content
     return false;
 });
-$(".toptab_container").tabs();
+//$(".toptab_container").tabs();
+$(".toptab_container").addClass("ui-tabs ui-widget ui-widget-content ui-corner-all");
+$(".toptab_container ul").addClass("ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all");
+$(".toptab_container ul li").addClass("ui-state-default ui-corner-top ui-tabs-selected");
+$(".toptab_container ul li.active").addClass("ui-state-active");
+
 </script>
 
 <style>
@@ -211,7 +220,7 @@ html ul.tabs li.active, html ul.tabs li.active a:hover  {
 }
 .tab_container {
     border: 1px solid #999;
-    width: 200%;
+    width: 83%;
     background: #fff;
     margin-left:15%;
     -moz-border-radius-bottomright: 5px;
