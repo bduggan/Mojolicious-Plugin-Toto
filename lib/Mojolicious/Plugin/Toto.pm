@@ -53,7 +53,9 @@ package Toto;
 use Mojolicious::Lite;
 use Mojo::ByteStream qw/b/;
 
-get '/' => { layout => "menu", controller => undef, action => undef, actions => undef } => 'toto';
+get '/' => { layout => "menu", controller => '', action => '', actions => '' } => 'toto';
+
+get '/toto.css' => sub { shift->render_static("toto.css") };
 
 get '/:controller/:action' => {
     action    => "default",
@@ -102,7 +104,7 @@ __DATA__
 <html>
 <head>
 <title><%= title %></title>
-%= stylesheet '/toto.css';
+%= stylesheet '/app/toto.css';
 <%= javascript 'http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js' %>
  <%= javascript begin %>
    if (typeof jQuery == 'undefined') {
@@ -113,68 +115,125 @@ __DATA__
    }
  <% end %>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.js"></script>
-%= stylesheet 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7/themes/smoothness/jquery-ui.css';
+%# stylesheet 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7/themes/smoothness/jquery-ui.css';
+%= stylesheet '/css/custom-theme/jquery-ui-1.8.13.custom.css';
 </head>
 <body>
 
-<script>
-% my $s = first_index(sub {$_ eq $controller},nouns);
-	$(function() {
-		var tabs = $( "#tabs" ).tabs({
-        selected: <%= $s || 0%>,
-        select: function(event, ui) {
-        var url = $.data(ui.tab, 'load.tabs');
-        if( url ) {
-            location.href = url;
-            return false;
-        }
-        return true;
-    }}
-    );
-	});
-% my $t = first_index(sub {$_ eq $action},@$actions);
-    $(function() {
-		var tabs = $( "#second_tabs" ).tabs({
-        selected: <%= $t || 0 %>,
-        select: function(event, ui) {
-        var url = $.data(ui.tab, 'load.tabs');
-        if( url ) {
-            location.href = url;
-            return false;
-        }
-        return true;
-    }}
-    );
-	});
+% my $s = first_index(sub {$_||'' eq $controller},nouns);
+% my $t = first_index(sub {$_||'' eq $action},@$actions);
 
+<div class="container">
+    <ul class="tabs">
+% for my $c (nouns) {
+        <li <%== $c eq $controller ? q[ class="active"] : "" =%>>
+            <%= link_to 'plural', { controller => $c } => begin =%><%= $c =%><%= end =%>
+        </li>
+% }
+    </ul>
+    <div class="tab_container">
+        <div id="tab1" class="tab_content">
+            <h2><%= $controller =%></h2>
+            <p>Text 1 </p>
+        </div>
+    </div>
+</div>
+
+<script>
+//Default Action
+//$(".tab_content").hide(); //Hide all content
+//$("ul.tabs li:first").addClass("active").show(); //Activate first tab
+$("ul.tabs li.active").show(); //Activate first tab
+$(".tab_content:first").show(); //Show first tab content
+//On Click Event
+$("ul.tabs li").click(function() {
+    $("ul.tabs li").removeClass("active"); //Remove any "active" class
+    $(this).addClass("active"); //Add "active" class to selected tab
+    $(".tab_content").hide(); //Hide all tab content
+    var activeTab = $(this).find("a").attr("href"); //Find the active tab + content
+    $(activeTab).fadeIn(); //Fade in the active content
+    return false;
+});
 </script>
 
-<div id="tabs">
-<ul>
-% for my $noun (nouns) {
-<li>
-%= link_to url_for("plural", { controller => $noun }) => begin
-<%= $noun =%>s
-%= end
-</li>
-% }
-</ul>
-
-<div id="second_tabs">
-%= content "second_header";
-%= content
-</div>
-
-</div>
-</body>
+<style>
+body {
+    background: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    font: 10px normal Verdana, Arial, Helvetica, sans-serif;
+    color: #444;
+}
+.container {width: 90% margin: 10px auto;}
+ul.tabs {
+    margin: 0;
+    padding: 0;
+    float: left;
+    list-style: none;
+    height: 32px;
+    border-bottom: 1px solid #999;
+    border-left: 1px solid #999;
+    width: 15%;
+}
+ul.tabs li {
+    float: top;
+    margin: 0;
+    padding: 0;
+    height: 31px;
+    line-height: 31px;
+    border: 1px solid #999;
+    border-left: none;
+    margin-bottom: 0px;
+    background: #e0e0e0;
+    overflow: hidden;
+    position: relative;
+}
+ul.tabs li a {
+    text-decoration: none;
+    color: #000;
+    display: block;
+    font-size: 1.2em;
+    padding: 0 20px;
+    border: 1px solid #fff;
+    outline: none;
+}
+ul.tabs li a:hover {
+    background: #ccc;
+}   
+html ul.tabs li.active, html ul.tabs li.active a:hover  {
+    background: #fff;
+    border-bottom: 1px solid #fff;
+}
+.tab_container {
+    border: 1px solid #999;
+    width: 200%;
+    background: #fff;
+    margin-left:15%;
+    -moz-border-radius-bottomright: 5px;
+    -khtml-border-radius-bottomright: 5px;
+    -webkit-border-bottom-right-radius: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    -khtml-border-radius-bottomleft: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+}
+.tab_content {
+    min-height: 360px;
+    font-size: 1.2em;
+}
+.tab_content h2 {
+    font-weight: normal;
+    padding-bottom: 10px;
+    font-size: 1.8em;
+}
+</style>
 </html>
 
 @@ layouts/menu_plurals.html.ep
 % layout 'menu';
 %= content second_header => begin
-<ul>
+<ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
 % for my $a (many($controller)) {
-<li>
+<li class="ui-state-default ui-corner-top">
 %= link_to url_for("plural", { controller => $controller, action => $a }) => begin
 %= $a
 %= end
@@ -187,9 +246,9 @@ __DATA__
 % layout 'menu';
 %= content second_header => begin
 <center><%= $controller %> <%= $key %></center>
-<ul>
+<ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
 % for my $a (one($controller)) {
-<li>
+<li class="ui-state-default ui-corner-top">
 %= link_to url_for("single", { controller => $controller, action => $a, key => $key }) => begin
 %= $a
 %= end
@@ -219,105 +278,6 @@ Please choose a menu item.
 </center>
 
 @@ toto.css
-ul.globalnav {
-	position:relative;
-	float:left;
-	width:95%;
-	padding:0 0 1.75em 1em;
-	margin:0;
-	list-style:none;
-	line-height:1em;
-    overflow:hidden;
-}
-
-.globalnav LI {
-	float:left;
-	margin:0;
-	padding:0;
-}
-
-.globalnav A {
-	display:block;
-	color:#444;
-	text-decoration:none;
-	font-weight:bold;
-	background:#ddd;
-	margin:0;
-	padding:0.25em 1em;
-	border-left:1px solid #fff;
-	border-top:1px solid #fff;
-	border-right:1px solid #aaa;
-}
-
-.globalnav A:hover,
-.globalnav A:active,
-.globalnav A.here:link,
-.globalnav A.here:visited {
-	background:#bbb;
-}
-
-.globalnav A.here:link,
-.globalnav A.here:visited {
-	position:relative;
-	z-index:102;
-}
-
-/*subnav*/
-
-.globalnav UL {
-	position:absolute;
-	left:0;
-	top:1.5em;
-	float:left;
-	background:#bbb;
-	width:100%;
-	margin:0;
-	padding:0.25em 0.25em 0.25em 1em;
-	list-style:none;
-	border-top:1px solid #fff;
-}
-
-#globalnav_with_item {
-	padding:0 0 2.75em 1em;
-}
-
-.globalnav UL li.selected_item {
-    color:red;
-    float:none;
-    text-align:center;
-}
-
-.globalnav UL LI {
-	float:left;
-	display:block;
-	margin-top:1px;
-}
-
-.globalnav UL A {
-	background:#bbb;
-	color:#fff;
-	display:inline;
-	margin:0;
-	padding:0 1em;
-	border:0
-}
-
-.globalnav UL A:hover,
-.globalnav UL A:active,
-.globalnav UL A.here:link,
-.globalnav UL A.here:visited {
-	color:#444;
-}
 html,body {
     height:90%;
     }
-div#content {
-    margin:0;
-	padding:0 0 2.75em 1em;
-    clear:both;
-    background-color:#abb;
-    height:100%;
-    width:95%;
-}
-
-
