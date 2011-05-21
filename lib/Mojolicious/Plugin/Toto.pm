@@ -143,6 +143,9 @@ __DATA__
                 </li>
 % }
             </ul>
+         <div class="page_content">
+         Some content goes here for <%= $controller %> <%= $action %>
+         </div>
          </div>
     </div>
 </div>
@@ -163,10 +166,11 @@ $("ul.tabs li").click(function() {
 //$(".toptab_container").tabs();
 $(".toptab_container").addClass("ui-tabs ui-widget ui-widget-content ui-corner-all");
 $(".toptab_container ul").addClass("ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all");
-$(".toptab_container ul li").addClass("ui-state-default ui-corner-top ui-tabs-selected");
+$(".toptab_container ul li").addClass("ui-state-default ui-corner-top");
 $(".toptab_container ul li.active").addClass("ui-state-active");
 $(".toptab_container ul li").click(function() {
     $("ul.toptabs li").removeClass("ui-state-active");
+    $(".page_content").hide();
     $(this).addClass("ui-state-active");
 });
 
