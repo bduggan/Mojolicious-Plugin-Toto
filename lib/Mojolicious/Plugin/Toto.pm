@@ -66,7 +66,7 @@ get '/toto.css' => sub { shift->render_static("toto.css") };
 get '/:controller/:action' => {
     action    => "default",
     namespace => "Toto::Controller",
-    layout    => "menu_plurals"
+    layout    => "menu"
   } => sub {
     my $c = shift;
     my ( $action, $controller ) = ( $c->stash("action"), $c->stash("controller") );
@@ -85,7 +85,7 @@ get '/:controller/:action' => {
 get '/:controller/:action/(*key)' => {
     action => "default",
     namespace => "Toto::Controller",
-    layout => "menu_single"
+    layout => "menu"
 } => sub {
     my $c = shift;
     my ( $action, $controller, $key ) =
@@ -134,17 +134,13 @@ __DATA__
     </ul>
     <div class="tab_container">
          <div class="toptab_container">
-            <ul class="toptabs">
-% for my $a (actions) {
-                <li <%== $a eq $action ? q[ class="active"] : '' %>>
-                    <%= link_to 'plural', { controller => $controller, action => $a } => begin =%>
-                        <%= $a =%>
-                    <%= end =%>
-                </li>
+% if (stash 'key') {
+%= include 'top_tabs_single';
+% } else {
+%= include 'top_tabs_plural';
 % }
-            </ul>
          <div class="page_content">
-         Some content goes here for <%= $controller %> <%= $action %>
+         <%= content =%>
          </div>
          </div>
     </div>
@@ -175,8 +171,56 @@ $(".toptab_container ul li").click(function() {
 });
 
 </script>
+</html>
 
-<style>
+@@ top_tabs_plural.html.ep
+<ul class="toptabs">
+% for my $a (actions) {
+    <li <%== $a eq $action ? q[ class="active"] : '' %>>
+        <%= link_to 'plural', { controller => $controller, action => $a } => begin =%>
+            <%= $a =%>
+        <%= end =%>
+    </li>
+% }
+</ul>
+
+@@ top_tabs_single.html.ep
+<h2><%= $controller %> <%= $key %></h2>
+<ul class="toptabs">
+% for my $a (actions) {
+    <li <%== $a eq $action ? q[ class="active"] : '' %>>
+        <%= link_to 'single', { controller => $controller, action => $a, key => $key } => begin =%>
+            <%= $a =%>
+        <%= end =%>
+    </li>
+% }
+</ul>
+
+
+@@ single.html.ep
+This is the page for <%= $action %> for
+<%= $controller %> <%= $key %>.
+
+@@ plural.html.ep
+your page to <%= $action %> <%= $controller %>s goes here<br>
+(add <%= $class %>::<%= $action %>)<br>
+% for (1..10) {
+%= link_to 'single', { controller => $controller, key => $_ } => begin
+<%= $controller %> <%= $_ %><br>
+%= end
+% }
+
+@@ toto.html.ep
+<center>
+<br>
+Welcome to <%= app_name %><br>
+Please choose a menu item.
+</center>
+
+@@ toto.css
+html,body {
+    height:90%;
+    }
 body {
     background: #f0f0f0;
     margin: 0;
@@ -241,63 +285,8 @@ html ul.tabs li.active, html ul.tabs li.active a:hover  {
     font-size: 1.2em;
 }
 .toptab_container h2 {
+    text-align:center;
     font-weight: normal;
-    padding-bottom: 10px;
     font-size: 1.8em;
 }
-</style>
-</html>
 
-@@ layouts/menu_plurals.html.ep
-% layout 'menu';
-%= content second_header => begin
-<ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-% for my $a (many($controller)) {
-<li class="ui-state-default ui-corner-top">
-%= link_to url_for("plural", { controller => $controller, action => $a }) => begin
-%= $a
-%= end
-</li>
-% }
-</ul>
-% end
-
-@@ layouts/menu_single.html.ep
-% layout 'menu';
-%= content second_header => begin
-<center><%= $controller %> <%= $key %></center>
-<ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-% for my $a (one($controller)) {
-<li class="ui-state-default ui-corner-top">
-%= link_to url_for("single", { controller => $controller, action => $a, key => $key }) => begin
-%= $a
-%= end
-</li>
-% }
-</ul>
-% end
-
-@@ single.html.ep
-This is the page for <%= $action %> for
-<%= $controller %> <%= $key %>.
-
-@@ plural.html.ep
-your page to <%= $action %> <%= $controller %>s goes here<br>
-(add <%= $class %>::<%= $action %>)<br>
-% for (1..10) {
-%= link_to 'single', { controller => $controller, key => $_ } => begin
-<%= $controller %> <%= $_ %><br>
-%= end
-% }
-
-@@ toto.html.ep
-<center>
-<br>
-Welcome to <%= app_name %><br>
-Please choose a menu item.
-</center>
-
-@@ toto.css
-html,body {
-    height:90%;
-    }
