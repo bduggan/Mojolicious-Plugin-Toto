@@ -118,7 +118,6 @@ __DATA__
 %= stylesheet 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7/themes/smoothness/jquery-ui.css';
 </head>
 <body>
-
 <div class="container">
     <ul class="tabs">
 % for my $c (nouns) {
@@ -140,7 +139,6 @@ __DATA__
          </div>
     </div>
 </div>
-
 <script>
 //Default Action
 //$("ul.tabs li.active").show(); //Activate active tab
@@ -214,7 +212,8 @@ Please choose a menu item.
 
 @@ toto.css
 html,body {
-    height:90%;
+    height:95%;
+    border:none;
     }
 body {
     background: #f0f0f0;
@@ -223,7 +222,7 @@ body {
     font: 10px normal Verdana, Arial, Helvetica, sans-serif;
     color: #444;
 }
-.container {width: 90% margin: 10px auto;}
+.container {width: 90% margin: 10px auto; height:95%;}
 ul.tabs {
     margin: 0;
     padding: 0;
@@ -265,8 +264,8 @@ html ul.tabs li.active, html ul.tabs li.active a:hover  {
 }
 .tab_container {
     border: 1px solid #999;
-    width: 83%;
     background: #fff;
+    height:95%;
     margin-left:15%;
     -moz-border-radius-bottomright: 5px;
     -khtml-border-radius-bottomright: 5px;
@@ -276,12 +275,15 @@ html ul.tabs li.active, html ul.tabs li.active a:hover  {
     -webkit-border-bottom-left-radius: 5px;
 }
 .toptab_container {
-    min-height: 360px;
+    height: 100%;
     font-size: 1.2em;
 }
 .toptab_container h2 {
     text-align:center;
     font-weight: normal;
     font-size: 1.8em;
+    height:5%;
 }
-
+.page_content {
+    height:95%;
+}
