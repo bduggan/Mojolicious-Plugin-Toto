@@ -36,8 +36,14 @@ sub register {
         $_->helper( toto_menu   => sub { @menu } );
         $_->helper( app_name    => sub { basename($ENV{MOJO_EXE}) });
         $_->helper( nouns       => sub { @nouns } );
-        $_->helper( many        => sub { @{ $menu{ $_[1] }{many} } } );
-        $_->helper( one         => sub { @{ $menu{ $_[1] }{one} } } );
+        $_->helper( many        => sub { my $c = shift; @{ $menu{ $_[1] || $c->stash("controller") }{many} } } );
+        $_->helper( one         => sub { my $c = shift; @{ $menu{ $_[1] || $c->stash("controller") }{one} } } );
+        $_->helper(
+            actions => sub {
+                my $c = shift;
+                defined( $c->stash("key") ) ? $c->one : $c->many;
+            }
+        );
     }
 }
 
@@ -99,7 +105,6 @@ get '/:controller/:action/(*key)' => {
 1;
 __DATA__
 @@ layouts/menu.html.ep
-% use List::MoreUtils qw/first_index/;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
 <html>
 <head>
@@ -115,13 +120,9 @@ __DATA__
    }
  <% end %>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.js"></script>
-%# stylesheet 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7/themes/smoothness/jquery-ui.css';
-%= stylesheet '/css/custom-theme/jquery-ui-1.8.13.custom.css';
+%= stylesheet 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7/themes/smoothness/jquery-ui.css';
 </head>
 <body>
-
-% my $s = first_index(sub {$_||'' eq $controller},nouns);
-% my $t = first_index(sub {$_||'' eq $action},@$actions);
 
 <div class="container">
     <ul class="tabs">
@@ -133,18 +134,21 @@ __DATA__
     </ul>
     <div class="tab_container">
         <div id="tab1" class="tab_content">
-            <h2><%= $controller =%></h2>
-            <p>Text 1 </p>
+             <div class="toptab_container">
+                <ul class="toptabs">
+% for my $a (actions) {
+                    <li><a href="#foo"><%= $a =%></a></li>
+% }
+                </ul>
+             </div>
         </div>
     </div>
 </div>
 
 <script>
 //Default Action
-//$(".tab_content").hide(); //Hide all content
-//$("ul.tabs li:first").addClass("active").show(); //Activate first tab
-$("ul.tabs li.active").show(); //Activate first tab
-$(".tab_content:first").show(); //Show first tab content
+//$("ul.tabs li.active").show(); //Activate active tab
+$(".tab_content").show(); //Show tab content
 //On Click Event
 $("ul.tabs li").click(function() {
     $("ul.tabs li").removeClass("active"); //Remove any "active" class
@@ -154,6 +158,7 @@ $("ul.tabs li").click(function() {
     $(activeTab).fadeIn(); //Fade in the active content
     return false;
 });
+$(".toptab_container").tabs();
 </script>
 
 <style>
