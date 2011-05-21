@@ -28,17 +28,17 @@ sub register {
 
     $app->routes->route($location)->detour(app => Toto::app());
 
-    my @nouns = grep !ref($_), @menu;
+    my @controllers = grep !ref($_), @menu;
     for ($app, Toto::app()) {
         $_->helper( toto_menu   => sub { @menu } );
         $_->helper( app_name    => sub { basename($ENV{MOJO_EXE}) });
-        $_->helper( nouns       => sub { @nouns } );
-        $_->helper( many        => sub { my $c = shift; @{ $menu{ $_[1] || $c->stash("controller") }{many} } } );
-        $_->helper( one         => sub { my $c = shift; @{ $menu{ $_[1] || $c->stash("controller") }{one} } } );
+        $_->helper( controllers => sub { @controllers } );
         $_->helper(
             actions => sub {
-                my $c = shift;
-                defined( $c->stash("key") ) ? $c->one : $c->many;
+                my $c    = shift;
+                my $for  = shift || $c->stash("controller");
+                my $mode = defined( $c->stash("key") ) ? "one" : "many";
+                @{ $menu{$for}{$mode} || [] };
             }
         );
     }
@@ -120,7 +120,7 @@ __DATA__
 <body>
 <div class="container">
     <ul class="tabs">
-% for my $c (nouns) {
+% for my $c (controllers) {
         <li <%== $c eq $controller ? q[ class="active"] : "" =%>>
             <%= link_to 'plural', { controller => $c } => begin =%><%= $c =%><%= end =%>
         </li>
