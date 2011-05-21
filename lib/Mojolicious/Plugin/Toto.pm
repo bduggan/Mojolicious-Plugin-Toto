@@ -10,7 +10,6 @@ I call "toto", an acronym for "tabs on this object".
 =cut
 
 package Mojolicious::Plugin::Toto;
-use File::Basename qw/basename/;
 use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::ByteStream qw/b/;
 use strict;
@@ -19,9 +18,8 @@ use warnings;
 our $VERSION = 0.01;
 
 sub register {
-    my $self     = shift;
-    my $app      = shift;
-    my $conf     = shift;
+    my ($self, $app, $conf) = @_;
+
     my $location = $conf->{path} || '/toto';
     my @menu     = @{$conf->{menu} || []};
     my %menu     = @menu;
@@ -30,8 +28,6 @@ sub register {
 
     my @controllers = grep !ref($_), @menu;
     for ($app, Toto::app()) {
-        $_->helper( toto_menu   => sub { @menu } );
-        $_->helper( app_name    => sub { basename($ENV{MOJO_EXE}) });
         $_->helper( controllers => sub { @controllers } );
         $_->helper(
             actions => sub {
@@ -46,11 +42,6 @@ sub register {
 
 package Toto::Controller;
 use Mojo::Base 'Mojolicious::Controller';
-
-sub default {
-    my $c = shift;
-    $c->render(template => "plural");
-}
 
 package Toto;
 use Mojolicious::Lite;
@@ -204,9 +195,10 @@ your page to <%= $action %> <%= $controller %>s goes here<br>
 % }
 
 @@ toto.html.ep
+% use File::Basename qw/basename/;
 <center>
 <br>
-Welcome to <%= app_name %><br>
+Welcome, to <%= basename($ENV{MOJO_EXE}) %><br>
 Please choose a menu item.
 </center>
 
