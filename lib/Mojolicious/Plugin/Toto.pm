@@ -96,15 +96,7 @@ __DATA__
 <head>
 <title><%= title %></title>
 %= stylesheet '/app/toto.css';
-<%= javascript 'http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js' %>
- <%= javascript begin %>
-   if (typeof jQuery == 'undefined') {
-     var e = document.createElement('script');
-     e.src = '/js/jquery.js';
-     e.type = 'text/javascript';
-     document.getElementsByTagName("head")[0].appendChild(e);
-   }
- <% end %>
+%= javascript '/js/jquery.js';
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.js"></script>
 %= stylesheet 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7/themes/smoothness/jquery-ui.css';
 </head>
