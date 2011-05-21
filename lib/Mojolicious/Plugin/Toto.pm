@@ -47,14 +47,14 @@ package Toto;
 use Mojolicious::Lite;
 use Mojo::ByteStream qw/b/;
 
-get '/' => { layout => "menu", controller => '', action => '' } => 'toto';
+get '/' => { layout => "toto", controller => '', action => '' } => 'toto';
 
 get '/toto.css' => sub { shift->render_static("toto.css") };
 
 get '/:controller/:action' => {
     action    => "default",
     namespace => "Toto::Controller",
-    layout    => "menu"
+    layout    => "toto"
   } => sub {
     my $c = shift;
     my ( $action, $controller ) = ( $c->stash("action"), $c->stash("controller") );
@@ -70,9 +70,9 @@ get '/:controller/:action' => {
   } => 'plural';
 
 get '/:controller/:action/(*key)' => {
-    action => "default",
-    namespace => "Toto::Controller",
-    layout => "menu"
+    action      => "default",
+      namespace => "Toto::Controller",
+      layout    => "toto"
 } => sub {
     my $c = shift;
     my ( $action, $controller, $key ) =
@@ -90,7 +90,7 @@ get '/:controller/:action/(*key)' => {
 
 1;
 __DATA__
-@@ layouts/menu.html.ep
+@@ layouts/toto.html.ep
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
 <html>
 <head>
