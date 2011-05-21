@@ -4,11 +4,8 @@ Mojolicious::Plugin::Toto - the toto navigational structure
 
 =head1 DESCRIPTION
 
-package Mojolicious::Plugin::Toto;
-
-=head1 SEE ALSO
-
-http://clagnut.com/sandbox/csstabs/
+This is an implementation of a navigational structure
+I call "toto", an acronym for "tabs on this object".
 
 =cut
 
@@ -59,7 +56,7 @@ package Toto;
 use Mojolicious::Lite;
 use Mojo::ByteStream qw/b/;
 
-get '/' => { layout => "menu", controller => '', action => '', actions => '' } => 'toto';
+get '/' => { layout => "menu", controller => '', action => '' } => 'toto';
 
 get '/toto.css' => sub { shift->render_static("toto.css") };
 
@@ -71,14 +68,13 @@ get '/:controller/:action' => {
     my $c = shift;
     my ( $action, $controller ) = ( $c->stash("action"), $c->stash("controller") );
     if ($c->stash("action") eq 'default') {
-        my $first = [ $c->many($controller) ]->[0];
+        my $first = [ $c->actions ]->[0];
         return $c->redirect_to( "plural" => action => $first, controller => $controller )
     }
     my $class = join '::', $c->stash("namespace"), b($controller)->camelize;
     my $root = $c->app->renderer->root;
     my ($template) = grep {-e "$root/$_.html.ep" } "$controller/$action", $action;
     $c->stash->{template} = $template || 'plural';
-    $c->stash(actions => [$c->many($controller) ]);
     $c->render(class => $class) unless $class->can($action);
   } => 'plural';
 
@@ -91,14 +87,13 @@ get '/:controller/:action/(*key)' => {
     my ( $action, $controller, $key ) =
       ( $c->stash("action"), $c->stash("controller"), $c->stash("key") );
     if ($c->stash("action") eq 'default') {
-        my $first = [ $c->one($controller) ]->[0];
+        my $first = [ $c->actions ]->[0];
         return $c->redirect_to( "single" => action => $first, controller => $controller, key => $key )
     }
     my $class = join '::', $c->stash("namespace"), b($controller)->camelize;
     my $root = $c->app->renderer->root;
     my ($template) = grep {-e "$root/$_.html.ep" } "$controller/$action", $action;
     $c->stash->{template} = $template || 'single';
-    $c->stash(actions => [ $c->one($controller) ]);
     $c->render(class => $class) unless $class->can($action);
 } => 'single';
 
