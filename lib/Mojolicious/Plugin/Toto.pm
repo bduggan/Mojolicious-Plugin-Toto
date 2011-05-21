@@ -133,31 +133,29 @@ __DATA__
 % }
     </ul>
     <div class="tab_container">
-        <div id="tab1" class="tab_content">
-             <div class="toptab_container">
-                <ul class="toptabs">
+         <div class="toptab_container">
+            <ul class="toptabs">
 % for my $a (actions) {
-                    <li <%== $a eq $action ? q[ class="active"] : '' %>>
-                        <%= link_to 'plural', { controller => $controller, action => $a } => begin =%>
-                            <%= $a =%>
-                        <%= end =%>
-                    </li>
+                <li <%== $a eq $action ? q[ class="active"] : '' %>>
+                    <%= link_to 'plural', { controller => $controller, action => $a } => begin =%>
+                        <%= $a =%>
+                    <%= end =%>
+                </li>
 % }
-                </ul>
-             </div>
-        </div>
+            </ul>
+         </div>
     </div>
 </div>
 
 <script>
 //Default Action
 //$("ul.tabs li.active").show(); //Activate active tab
-$(".tab_content").show(); //Show tab content
+$(".toptab_container").show(); //Show tab content
 //On Click Event
 $("ul.tabs li").click(function() {
     $("ul.tabs li").removeClass("active"); //Remove any "active" class
     $(this).addClass("active"); //Add "active" class to selected tab
-    $(".tab_content").hide(); //Hide all tab content
+    $(".toptab_container").hide(); //Hide all tab content
     var activeTab = $(this).find("a").attr("href"); //Find the active tab + content
     $(activeTab).fadeIn(); //Fade in the active content
     return false;
@@ -167,6 +165,10 @@ $(".toptab_container").addClass("ui-tabs ui-widget ui-widget-content ui-corner-a
 $(".toptab_container ul").addClass("ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all");
 $(".toptab_container ul li").addClass("ui-state-default ui-corner-top ui-tabs-selected");
 $(".toptab_container ul li.active").addClass("ui-state-active");
+$(".toptab_container ul li").click(function() {
+    $("ul.toptabs li").removeClass("ui-state-active");
+    $(this).addClass("ui-state-active");
+});
 
 </script>
 
@@ -230,11 +232,11 @@ html ul.tabs li.active, html ul.tabs li.active a:hover  {
     -khtml-border-radius-bottomleft: 5px;
     -webkit-border-bottom-left-radius: 5px;
 }
-.tab_content {
+.toptab_container {
     min-height: 360px;
     font-size: 1.2em;
 }
-.tab_content h2 {
+.toptab_container h2 {
     font-weight: normal;
     padding-bottom: 10px;
     font-size: 1.8em;
