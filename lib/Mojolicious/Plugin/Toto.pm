@@ -20,13 +20,16 @@ our $VERSION = 0.01;
 sub register {
     my ($self, $app, $conf) = @_;
 
-    my $location = $conf->{path} || '/toto';
-    my @menu     = @{$conf->{menu} || []};
-    my %menu     = @menu;
+    my $location  = $conf->{path}      || '/toto';
+    my $namespace = $conf->{namespace} || $app->routes->namespace;
+    my @menu = @{ $conf->{menu} || [] };
+    my %menu = @menu;
 
     $app->routes->route($location)->detour(app => Toto::app());
+    Toto::app()->routes->namespace($namespace);
 
     my @controllers = grep !ref($_), @menu;
+    Toto::app()->helper(main_app => sub { $app } );
     for ($app, Toto::app()) {
         $_->helper( controllers => sub { @controllers } );
         $_->helper(
@@ -39,9 +42,6 @@ sub register {
         );
     }
 }
-
-package Toto::Controller;
-use Mojo::Base 'Mojolicious::Controller';
 
 package Toto;
 use Mojolicious::Lite;
@@ -65,7 +65,6 @@ get '/images/:which.png' =>
 
 get '/:controller/:action' => {
     action    => "default",
-    namespace => "Toto::Controller",
     layout    => "toto"
   } => sub {
     my $c = shift;
@@ -74,17 +73,23 @@ get '/:controller/:action' => {
         my $first = [ $c->actions ]->[0];
         return $c->redirect_to( "plural" => action => $first, controller => $controller )
     }
-    my $class = join '::', $c->stash("namespace"), b($controller)->camelize;
+    my $namespace = $c->app->routes->namespace;
+    my $class = join '::', $namespace, b($controller)->camelize;
     my $root = $c->app->renderer->root;
     my ($template) = grep {-e "$root/$_.html.ep" } "$controller/$action", $action;
     $c->stash->{template} = $template || 'plural';
-    $c->render(class => $class) unless $class->can($action);
+    if ($class->can($action)) {
+        app->log->debug("calling $action of $class");
+        bless $c, $class;
+        $c->$action;
+        bless $c, 'Mojolicious::Controller';
+    }
+    $c->render(class => $class);
   } => 'plural';
 
 get '/:controller/:action/(*key)' => {
     action      => "default",
-      namespace => "Toto::Controller",
-      layout    => "toto"
+    layout      => "toto"
 } => sub {
     my $c = shift;
     my ( $action, $controller, $key ) =
@@ -93,7 +98,8 @@ get '/:controller/:action/(*key)' => {
         my $first = [ $c->actions ]->[0];
         return $c->redirect_to( "single" => action => $first, controller => $controller, key => $key )
     }
-    my $class = join '::', $c->stash("namespace"), b($controller)->camelize;
+    my $namespace = $c->app->routes->namespace;
+    my $class = join '::', $namespace, b($controller)->camelize;
     my $root = $c->app->renderer->root;
     my ($template) = grep {-e "$root/$_.html.ep" } "$controller/$action", $action;
     $c->stash->{template} = $template || 'single';
