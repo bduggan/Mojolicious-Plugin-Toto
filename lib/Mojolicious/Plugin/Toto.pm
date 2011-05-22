@@ -31,6 +31,7 @@ sub register {
     my @controllers = grep !ref($_), @menu;
     Toto::app()->helper(main_app => sub { $app } );
     for ($app, Toto::app()) {
+        $_->helper( model_class => sub { $conf->{model_class} || "Toto::Model" });
         $_->helper( controllers => sub { @controllers } );
         $_->helper(
             actions => sub {
@@ -42,6 +43,10 @@ sub register {
         );
     }
 }
+
+package Toto::Model;
+use Mojo::Base -base;
+has 'key';
 
 package Toto;
 use Mojolicious::Lite;
@@ -103,7 +108,14 @@ get '/:controller/:action/(*key)' => {
     my $root = $c->app->renderer->root;
     my ($template) = grep {-e "$root/$_.html.ep" } "$controller/$action", $action;
     $c->stash->{template} = $template || 'single';
-    $c->render(class => $class) unless $class->can($action);
+    if ($class->can($action)) {
+        app->log->debug("calling $action of $class with a model object");
+        my $object = $c->model_class->new(key => $c->stash("key"));
+        bless $c, $class;
+        $c->$action($object);
+        bless $c, 'Mojolicious::Controller';
+    }
+    $c->render;
 } => 'single';
 
 1;
