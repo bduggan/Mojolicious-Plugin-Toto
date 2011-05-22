@@ -207,7 +207,7 @@ $(".toptab_container ul li").click(function() {
 @@ single.html.ep
 This is the page for <%= $action %> for
 <%= $controller %> <%= $key %>.
-<pre style='float:right;'>
+<pre class="code">
 cat > lib/<%= $self->app->routes->namespace %>/<%= b($controller)->camelize %>.pm
 package <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>;
 use Mojo::Base 'Mojolicious::Controller';
@@ -226,7 +226,7 @@ This is the page for
 
 @@ plural.html.ep
 % use Mojo::ByteStream qw/b/;
-<pre style='float:right;'>
+<pre class="code">
 cat > lib/<%= $self->app->routes->namespace %>/<%= b($controller)->camelize %>.pm
 package <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>;
 use Mojo::Base 'Mojolicious::Controller';
@@ -330,6 +330,13 @@ html ul.tabs li.active, html ul.tabs li.active a:hover  {
 .page_content {
     height:95%;
 }
+pre.code {
+    float:right;
+    margin-right:20px;
+    padding:5px;
+    border:1px grey dashed;
+    background-color:#dda;
+    }
 
 @@ jquery-ui.css
 /*
