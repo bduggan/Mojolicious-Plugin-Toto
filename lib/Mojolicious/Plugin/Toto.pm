@@ -232,12 +232,15 @@ package <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>;
 use Mojo::Base 'Mojolicious::Controller';
 sub <%= $action %> {
     my $c = shift;
-    # <%= $action %> for <%= $controller %>
     ...
 }
 
 cat > templates/<%= $controller %>/<%= $action %>.html.ep
-Here is my template.
+<%= '%' %> for (1..10) {
+<%= '%' %>= link_to 'single', { controller => $controller, key => $_ } => begin
+&lt;%= $controller %&gt; &lt;%= $_ %&gt;&lt;br&gt;
+<%= '%' %>= end
+<%= '%' %> }
 </pre>
 % for (1..10) {
 %= link_to 'single', { controller => $controller, key => $_ } => begin
