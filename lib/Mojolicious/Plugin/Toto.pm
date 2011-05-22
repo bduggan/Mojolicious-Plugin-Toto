@@ -108,9 +108,11 @@ get '/:controller/:action/(*key)' => {
     my $root = $c->app->renderer->root;
     my ($template) = grep {-e "$root/$_.html.ep" } "$controller/$action", $action;
     $c->stash->{template} = $template || 'single';
+    my $object = $c->model_class->new(key => $c->stash("key"));
+    $c->stash(instance => $object);
     if ($class->can($action)) {
         app->log->debug("calling $action of $class with a model object");
-        my $object = $c->model_class->new(key => $c->stash("key"));
+        $c->stash($controller => $object);
         bless $c, $class;
         $c->$action($object);
         bless $c, 'Mojolicious::Controller';
@@ -190,7 +192,7 @@ $(".toptab_container ul li").click(function() {
 </ul>
 
 @@ top_tabs_single.html.ep
-<h2><%= $controller %> <%= $key %></h2>
+<h2><%= $controller %> <%= $instance->key %></h2>
 <ul class="toptabs">
 % for my $a (actions) {
     <li <%== $a eq $action ? q[ class="active"] : '' %>>
@@ -205,11 +207,38 @@ $(".toptab_container ul li").click(function() {
 @@ single.html.ep
 This is the page for <%= $action %> for
 <%= $controller %> <%= $key %>.
+<pre style='float:right;'>
+cat > lib/<%= $self->app->routes->namespace %>/<%= b($controller)->camelize %>.pm
+package <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>;
+use Mojo::Base 'Mojolicious::Controller';
+sub <%= $action %> {
+    my $c = shift;
+    my $<%= $controller %> = shift;
+    # <%= $action %> for <%= $controller %>
+    ...
+}
+
+cat > templates/<%= $controller %>/<%= $action %>.html.ep
+This is the page for
+&lt%= $action %&gt; for &lt;%= $controller %&gt;
+&lt;%= $<%= $controller %>-&gt;key %&gt;
+</pre>
 
 @@ plural.html.ep
 % use Mojo::ByteStream qw/b/;
-your page to <%= $action %> <%= $controller %>s goes here<br>
-(add <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>::<%= $action =%>)<br>
+<pre style='float:right;'>
+cat > lib/<%= $self->app->routes->namespace %>/<%= b($controller)->camelize %>.pm
+package <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>;
+use Mojo::Base 'Mojolicious::Controller';
+sub <%= $action %> {
+    my $c = shift;
+    # <%= $action %> for <%= $controller %>
+    ...
+}
+
+cat > templates/<%= $controller %>/<%= $action %>.html.ep
+Here is my template.
+</pre>
 % for (1..10) {
 %= link_to 'single', { controller => $controller, key => $_ } => begin
 <%= $controller %> <%= $_ %><br>
