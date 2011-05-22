@@ -84,7 +84,7 @@ get '/:controller/:action' => {
         $c->$action;
         bless $c, 'Mojolicious::Controller';
     }
-    $c->render(class => $class);
+    $c->render;
   } => 'plural';
 
 get '/:controller/:action/(*key)' => {
@@ -195,8 +195,9 @@ This is the page for <%= $action %> for
 <%= $controller %> <%= $key %>.
 
 @@ plural.html.ep
+% use Mojo::ByteStream qw/b/;
 your page to <%= $action %> <%= $controller %>s goes here<br>
-(add <%= $class %>::<%= $action %>)<br>
+(add <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>::<%= $action =%>)<br>
 % for (1..10) {
 %= link_to 'single', { controller => $controller, key => $_ } => begin
 <%= $controller %> <%= $_ %><br>
