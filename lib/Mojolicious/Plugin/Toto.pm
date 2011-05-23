@@ -1,11 +1,43 @@
 =head1 NAME
 
-Mojolicious::Plugin::Toto - the toto navigational structure
+Mojolicious::Plugin::Toto - A simple tab and object based site structure
+
+=head1 SYNOPSIS
+
+cat > ./Beer
+#!/usr/bin/env perl
+use Mojolicious::Lite;
+
+plugin 'toto' =>
+    path => "/toto",
+    menu => [
+        beer    => { one  => [qw/picture ingredients pubs/],
+                     many => [qw/search browse/] },
+        brewery => { one  => [qw/directions beers info/],
+                     many => [qw/phonelist mailing_list/] },
+        pub     => { one  => [qw/info comments/],
+                     many => [qw/search map/] },
+    ]
+;
+app->start
+
+./Beer daemon
 
 =head1 DESCRIPTION
 
 This is an implementation of a navigational structure
-I call "toto", an acronym for "tabs on this object".
+called "toto": "tabs on this object".
+
+Given a collection of objects (e.g. beers, breweries,
+pubs), decide on two types of tabs :
+
+    - tabs associated with one object.
+
+    - tabs associated with zero or more than one object.
+
+Then create a structure (as in the synopsis), and start
+your mojolicious app.
+
 
 =cut
 
@@ -21,7 +53,7 @@ sub register {
     my ($self, $app, $conf) = @_;
 
     my $location  = $conf->{path}      || '/toto';
-    my $namespace = $conf->{namespace} || $app->routes->namespace;
+    my $namespace = $conf->{namespace} || $app->routes->namespace || "Toto";
     my @menu = @{ $conf->{menu} || [] };
     my %menu = @menu;
 
@@ -29,8 +61,8 @@ sub register {
     Toto::app()->routes->namespace($namespace);
 
     my @controllers = grep !ref($_), @menu;
-    Toto::app()->helper(main_app => sub { $app } );
     for ($app, Toto::app()) {
+        $_->helper( toto_path   => sub { $location } );
         $_->helper( model_class => sub { $conf->{model_class} || "Toto::Model" });
         $_->helper( controllers => sub { @controllers } );
         $_->helper(
@@ -55,8 +87,8 @@ use File::Basename qw/dirname/;
 use File::Spec;
 
 get '/' => { layout => "toto", controller => '', action => '' } => 'toto';
+get '/jq.css'        => sub { shift->render_static("jq.css")   };
 get '/toto.css'      => sub { shift->render_static("toto.css") };
-get '/jquery-ui.css' => sub { shift->render_static("jquery-ui.css") };
 
 get '/images/:which.png' =>
     [ which =>
@@ -78,7 +110,7 @@ get '/:controller/:action' => {
         my $first = [ $c->actions ]->[0];
         return $c->redirect_to( "plural" => action => $first, controller => $controller )
     }
-    my $namespace = $c->app->routes->namespace;
+    my $namespace = $c->app->routes->namespace || "Toto";
     my $class = join '::', $namespace, b($controller)->camelize;
     my $root = $c->app->renderer->root;
     my ($template) = grep {-e "$root/$_.html.ep" } "$controller/$action", $action;
@@ -103,7 +135,7 @@ get '/:controller/:action/(*key)' => {
         my $first = [ $c->actions ]->[0];
         return $c->redirect_to( "single" => action => $first, controller => $controller, key => $key )
     }
-    my $namespace = $c->app->routes->namespace;
+    my $namespace = $c->app->routes->namespace || "Toto";
     my $class = join '::', $namespace, b($controller)->camelize;
     my $root = $c->app->renderer->root;
     my ($template) = grep {-e "$root/$_.html.ep" } "$controller/$action", $action;
@@ -127,9 +159,10 @@ __DATA__
 <html>
 <head>
 <title><%= title %></title>
-%= stylesheet '/app/toto.css';
+%= base_tag
+%= stylesheet toto_path.'/toto.css';
+%= stylesheet toto_path.'/jq.css';
 %= javascript '/js/jquery.js';
-%= stylesheet '/app/jquery-ui.css';
 </head>
 <body>
 <div class="container">
@@ -341,7 +374,7 @@ pre.code {
     background-color:#dda;
     }
 
-@@ jquery-ui.css
+@@ jq.css
 /*
 * jQuery UI CSS Framework
 * Copyright (c) 2009 AUTHORS.txt (http://jqueryui.com/about)
@@ -441,4 +474,5 @@ pre.code {
 .ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a { cursor: pointer; } /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
 .ui-tabs .ui-tabs-panel { padding: 1em 1.4em; display: block; border-width: 0; background: none; }
 .ui-tabs .ui-tabs-hide { display: none !important; }
+
 
