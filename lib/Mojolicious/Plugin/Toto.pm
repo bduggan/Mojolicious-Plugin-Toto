@@ -4,40 +4,66 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
 
 =head1 SYNOPSIS
 
-cat > ./Beer
-#!/usr/bin/env perl
-use Mojolicious::Lite;
+ cat > ./Beer
+ #!/usr/bin/env perl
+ use Mojolicious::Lite;
 
-plugin 'toto' =>
+ plugin 'toto' =>
     path => "/toto",
+    namespace => "Beer",
     menu => [
-        beer    => { one  => [qw/picture ingredients pubs/],
+        beer    => { one  => [qw/ingredients pubs/],
                      many => [qw/search browse/] },
         brewery => { one  => [qw/directions beers info/],
                      many => [qw/phonelist mailing_list/] },
         pub     => { one  => [qw/info comments/],
                      many => [qw/search map/] },
+ #  $controller (object) => { one => [ ..actions on one object ],
+ #                          many => [ ..actions on 0 or many objects ]
     ]
-;
-app->start
+ ;
+ app->start
 
-./Beer daemon
+ ./Beer daemon
 
 =head1 DESCRIPTION
 
 This is an implementation of a navigational structure
-called "toto": "tabs on this object".
+called "toto": "tabs on this object" which is
+as follows :
 
 Given a collection of objects (e.g. beers, breweries,
-pubs), decide on two types of tabs :
+pubs), come up with two types of pages :
 
-    - tabs associated with one object.
+    - pages associated with one object (e.g. view, edit)
 
-    - tabs associated with zero or more than one object.
+    - pages associated with zero or more than one object (e.g. search, browse)
 
-Then create a structure (as in the synopsis), and start
-your mojolicious app.
+Then Toto refers to a screen with three types of tab lists :
 
+    - a list of all the objects
+
+    - a list of all the actions possible on one object
+
+    - a list of all the actions possible on zero or multiple objects
+
+After creating a structure, as in the synopsis, and starting
+a mojolicious app, there will be a site as well as sample code
+and sample objects.
+
+Actions in controller classes will be called automatically if they
+exist (e.g. "Beer::Pub::search()").
+
+A template for a given page may be in either of these two places :
+
+    templates/$controller/$action.html.ep
+    templates/$action.html.ep
+
+depending on whether it is generic, or specific to the controller.
+
+=head1 TODO
+
+much more documentation
 
 =cut
 
