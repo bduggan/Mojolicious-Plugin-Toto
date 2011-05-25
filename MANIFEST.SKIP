@@ -48,3 +48,4 @@
 
 # Avoid archives of this distribution
 \bMojolicious-Plugin-Toto-[\d\.\_]+
+^MYMETA.yml$

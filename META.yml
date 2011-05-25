@@ -16,6 +16,10 @@ provides:
   Mojolicious::Plugin::Toto:
     file: lib/Mojolicious/Plugin/Toto.pm
     version: 0.02
+  Toto:
+    file: lib/Toto.pm
+  Toto::Model:
+    file: lib/Toto/Model.pm
 requires:
   Mojolicious: 1.0
 resources:
