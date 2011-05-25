@@ -73,7 +73,7 @@ use Mojo::ByteStream qw/b/;
 use strict;
 use warnings;
 
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 
 sub register {
     my ($self, $app, $conf) = @_;
