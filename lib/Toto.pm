@@ -137,7 +137,7 @@ $(".toptab_container ul li").click(function() {
 <ul class="toptabs">
 % for my $a (actions) {
     <li <%== $a eq $action ? q[ class="active"] : '' %>>
-        <%= link_to 'plural', { controller => $controller, action => $a } => begin =%>
+        <%= link_to toto_url($controller,$a) => begin =%>
             <%= $a =%>
         <%= end =%>
     </li>

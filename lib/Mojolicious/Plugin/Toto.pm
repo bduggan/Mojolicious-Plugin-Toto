@@ -76,20 +76,48 @@ use warnings;
 
 our $VERSION = 0.02;
 
+our $mainRoutes;
+sub _main_routes {
+     my $c = shift;
+     our $mainRoutes;
+     $mainRoutes ||= { map { ( $_->name => 1 ) }
+          grep { $_->name && $_->name =~ m[/] }
+          @{ $c->main_app->routes->children || [] }
+     };
+     return $mainRoutes;
+}
+
+sub _compute_url {
+     my ($c,$controller,$action) = @_;
+     if ( _main_routes($c)->{"$controller/$action"} ) {
+        return $c->main_app->url_for( "$controller/$action",
+            { controller => $controller, action => $action } );
+     }
+     $c->app->log->warn("no name found, using plural for $controller/$action");
+     #my $found = Toto::app()->url_for( 'plural', { controller => $controller, action => $action });
+     my $url =  Toto::app()->url_for( 'plural', { controller => $controller, action => $action });
+     #$url = $url->clone;
+     #unshift @{ $url->path->parts }, $c->toto_path;
+     $c->app->log->warn("url is $url");
+     return $url;
+}
+
 sub register {
     my ($self, $app, $conf) = @_;
 
-    my $location  = $conf->{path}      || '/toto';
+    my $path  = $conf->{path}      || '/toto';
     my $namespace = $conf->{namespace} || $app->routes->namespace || "Toto";
     my @menu = @{ $conf->{menu} || [] };
     my %menu = @menu;
 
-    $app->routes->route($location)->detour(app => Toto::app());
+    $app->routes->route($path)->detour(app => Toto::app());
     Toto::app()->routes->namespace($namespace);
 
     my @controllers = grep !ref($_), @menu;
     for ($app, Toto::app()) {
-        $_->helper( toto_path   => sub { $location } );
+        $_->helper( main_app => sub { $app } );
+        $_->helper( toto_url => \&_compute_url );
+        $_->helper( toto_path   => sub { $path } );
         $_->helper( model_class => sub { $conf->{model_class} || "Toto::Model" });
         $_->helper( controllers => sub { @controllers } );
         $_->helper(
@@ -101,5 +129,19 @@ sub register {
             }
         );
     }
+
+    $app->hook(before_render => sub {
+            my $c = shift;
+            my $name = $c->stash("template"); # another method for name?
+            return unless $name && _main_routes($c)->{$name};
+            my ($controller,$action) = $name =~ m{^(.*)/(.*)$};
+            $c->app->log->info("found $action, $controller");
+            $c->stash->{template_class} = "Toto";
+            $c->stash->{layout} = "toto";
+            $c->stash->{action} = $action;
+            $c->stash->{controller} = $controller;
+        });
 }
+
+1;
 
