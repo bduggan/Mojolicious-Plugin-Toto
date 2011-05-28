@@ -53,7 +53,7 @@ get '/:controller/:action/(*key)' => {
       ( $c->stash("action"), $c->stash("controller"), $c->stash("key") );
     if ($c->stash("action") eq 'default') {
         my $first = [ $c->actions ]->[0];
-        return $c->redirect_to( "single" => action => $first, controller => $controller, key => $key )
+        return $c->redirect_to( $c->toto_url($controller,$first,$key) );
     }
     my $namespace = $c->app->routes->namespace || "Toto";
     my $class = join '::', $namespace, b($controller)->camelize;
@@ -149,7 +149,7 @@ $(".toptab_container ul li").click(function() {
 <ul class="toptabs">
 % for my $a (actions) {
     <li <%== $a eq $action ? q[ class="active"] : '' %>>
-        <%= link_to 'single', { controller => $controller, action => $a, key => $key } => begin =%>
+        <%= link_to toto_url($controller, $a, $instance->key) => begin =%>
             <%= $a =%>
         <%= end =%>
     </li>
@@ -190,13 +190,13 @@ sub <%= $action %> {
 
 cat > templates/<%= $controller %>/<%= $action %>.html.ep
 <%= '%' %> for (1..10) {
-<%= '%' %>= link_to 'single', { controller => $controller, key => $_ } => begin
+<%= '%' %>= link_to toto_url($controller, 'default', $_) => begin
 &lt;%= $controller %&gt; &lt;%= $_ %&gt;&lt;br&gt;
 <%= '%' %>= end
 <%= '%' %> }
 </pre>
 % for (1..10) {
-%= link_to 'single', { controller => $controller, key => $_ } => begin
+%= link_to toto_url($controller, 'default', $_) => begin
 <%= $controller %> <%= $_ %><br>
 %= end
 % }

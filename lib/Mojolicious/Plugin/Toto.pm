@@ -87,14 +87,17 @@ sub _main_routes {
      return $mainRoutes;
 }
 
-sub _compute_url {
-     my ($c,$controller,$action) = @_;
+sub _toto_url {
+     my ($c,$controller,$action,$key) = @_;
      if ( $controller && $action && _main_routes($c)->{"$controller/$action"} ) {
+        $c->app->log->debug("found a route for $controller/$action");
         return $c->main_app->url_for( "$controller/$action",
-            { controller => $controller, action => $action } );
+            { controller => $controller, action => $action, key => $key } );
      }
+     $c->app->log->debug("default route for $controller".($action ? "/$action" : ""));
      # NB: there is a bug; this doesn't work on the first request.
-     my $url =  Toto::app()->url_for( 'plural', { controller => $controller, action => $action });
+     my $which = $key ? "single" : "plural";
+     my $url =  Toto::app()->url_for( $which, { controller => $controller, action => $action, key => $key });
      return $url;
 }
 
@@ -113,7 +116,7 @@ sub register {
     my @controllers = grep !ref($_), @menu;
     for ($app, Toto::app()) {
         $_->helper( main_app => sub { $app } );
-        $_->helper( toto_url => \&_compute_url );
+        $_->helper( toto_url => \&_toto_url );
         $_->helper( toto_path   => sub { $path } );
         $_->helper( model_class => sub { $conf->{model_class} || "Toto::Model" });
         $_->helper( controllers => sub { @controllers } );
@@ -137,6 +140,8 @@ sub register {
             $c->stash->{layout} = "toto";
             $c->stash->{action} = $action;
             $c->stash->{controller} = $controller;
+            my $key = $c->stash("key") or return;
+            $c->stash(instance => $c->model_class->new(key => $key));
         });
 }
 
