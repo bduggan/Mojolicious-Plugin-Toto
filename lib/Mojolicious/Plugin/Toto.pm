@@ -95,9 +95,12 @@ sub _toto_url {
             { controller => $controller, action => $action, key => $key } );
      }
      $c->app->log->debug("default route for $controller".($action ? "/$action" : ""));
-     # NB: there is a bug; this doesn't work on the first request.
-     my $which = $key ? "single" : "plural";
-     my $url =  Toto::app()->url_for( $which, { controller => $controller, action => $action, key => $key });
+     # url_for "plural" or "single" doesn't work for the first http
+     # request for some reason (toto_path is excluded)
+     my $url = $c->req->url->clone;
+     $url->path->parts([$c->toto_path, $controller]);
+     push @{ $url->path->parts }, $action if $action;
+     push @{ $url->path->parts }, $key if $action && defined($key);
      return $url;
 }
 
