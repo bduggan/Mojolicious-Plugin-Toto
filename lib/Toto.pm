@@ -12,7 +12,7 @@ get '/toto.css'      => sub { shift->render_static("toto.css") };
 
 get '/images/:which.png' =>
     [ which =>
-    qr[ui-bg_flat_75_ffffff_40x100|ui-bg_glass_65_ffffff_1x400|ui-bg_glass_75_e6e6e6_1x400|ui-bg_highlight-soft_75_cccccc_1x100] =>
+    qr[ui-bg_(?:highlight-)?(?:flat|glass|soft)_(?:\d+)_(?:\w{6})_(?:\d+)x(?:\d+)] =>
     ] => sub {
     my $c = shift;
     my $dir = File::Spec->catdir(File::Spec->splitdir(dirname(__FILE__)), 'public');
