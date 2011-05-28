@@ -22,6 +22,11 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
  #                          many => [ ..actions on 0 or many objects ]
     ]
  ;
+
+ get '/my/url/to/search/for/beers' => sub {
+      shift->render_text("here is my awesome beer search page");
+ } => "beer/search";
+
  app->start
 
  ./Beer daemon
@@ -51,15 +56,16 @@ After creating a structure, as in the synopsis, and starting
 a mojolicious app, there will be a site as well as sample code
 and sample objects.
 
-Actions in controller classes will be called automatically if they
-exist (e.g. "Beer::Pub::search()").
+Route names of the form "controller/action" will automatically
+be placed into the toto navigational structure.
+
+Controller classes may also be used; they will be automatically
+called if they exist (e.g. "Beer::Pub::search()").
 
 A template for a given page may be in either of these two places :
 
     templates/$controller/$action.html.ep
     templates/$action.html.ep
-
-depending on whether it is generic, or specific to the controller.
 
 =head1 TODO
 
