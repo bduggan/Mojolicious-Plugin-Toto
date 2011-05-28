@@ -89,16 +89,12 @@ sub _main_routes {
 
 sub _compute_url {
      my ($c,$controller,$action) = @_;
-     if ( _main_routes($c)->{"$controller/$action"} ) {
+     if ( $controller && $action && _main_routes($c)->{"$controller/$action"} ) {
         return $c->main_app->url_for( "$controller/$action",
             { controller => $controller, action => $action } );
      }
-     $c->app->log->warn("no name found, using plural for $controller/$action");
-     #my $found = Toto::app()->url_for( 'plural', { controller => $controller, action => $action });
+     # NB: there is a bug; this doesn't work on the first request.
      my $url =  Toto::app()->url_for( 'plural', { controller => $controller, action => $action });
-     #$url = $url->clone;
-     #unshift @{ $url->path->parts }, $c->toto_path;
-     $c->app->log->warn("url is $url");
      return $url;
 }
 
@@ -112,6 +108,7 @@ sub register {
 
     $app->routes->route($path)->detour(app => Toto::app());
     Toto::app()->routes->namespace($namespace);
+    Toto::app()->renderer->default_template_class("Toto");
 
     my @controllers = grep !ref($_), @menu;
     for ($app, Toto::app()) {

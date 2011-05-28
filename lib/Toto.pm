@@ -15,7 +15,7 @@ get '/images/:which.png' =>
     qr[ui-bg_flat_75_ffffff_40x100|ui-bg_glass_65_ffffff_1x400|ui-bg_glass_75_e6e6e6_1x400|ui-bg_highlight-soft_75_cccccc_1x100] =>
     ] => sub {
     my $c = shift;
-    my $dir = File::Spec->catdir(File::Spec->splitdir(dirname(__FILE__)), '../../public');
+    my $dir = File::Spec->catdir(File::Spec->splitdir(dirname(__FILE__)), 'public');
     $c->app->static->root($dir);
     $c->render_static( $c->stash("which") . ".png" );
 };
@@ -89,7 +89,7 @@ __DATA__
     <ul class="tabs">
 % for my $c (controllers) {
         <li <%== $c eq $controller ? q[ class="active"] : "" =%>>
-            <%= link_to 'plural', { controller => $c } => begin =%><%= $c =%><%= end =%>
+            <%= link_to toto_url($c) => begin =%><%= $c =%><%= end =%>
         </li>
 % }
     </ul>
