@@ -28,7 +28,7 @@ get '/:controller/:action' => {
     my ( $action, $controller ) = ( $c->stash("action"), $c->stash("controller") );
     if ($c->stash("action") eq 'default') {
         my $first = [ $c->actions ]->[0];
-        return $c->redirect_to( "plural" => action => $first, controller => $controller )
+        return $c->redirect_to( $c->toto_url($controller, $first) );
     }
     my $namespace = $c->app->routes->namespace || "Toto";
     my $class = join '::', $namespace, b($controller)->camelize;
