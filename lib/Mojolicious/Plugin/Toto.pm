@@ -46,7 +46,7 @@ pubs), come up with two types of pages :
 
 Then Toto refers to a screen with three types of tab lists :
 
-    - a list of all the objects
+    - a list of all the types of objects
 
     - a list of all the actions possible on one object
 
