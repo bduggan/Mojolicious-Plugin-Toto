@@ -12,11 +12,11 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
     path => "/toto",
     namespace => "Beer",
     menu => [
-        beer    => { one  => [qw/ingredients pubs/],
-                     many => [qw/search browse/] },
-        brewery => { one  => [qw/directions beers info/],
+        beer    => { one  => [qw/view edit pictures notes/],
+                     many => [qw/create search browse/] },
+        brewery => { one  => [qw/view edit directions beers info/],
                      many => [qw/phonelist mailing_list/] },
-        pub     => { one  => [qw/info comments/],
+        pub     => { one  => [qw/view info comments hours/],
                      many => [qw/search map/] },
  #  $controller (object) => { one => [ ..actions on one object ],
  #                          many => [ ..actions on 0 or many objects ]
@@ -24,52 +24,54 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
  ;
 
  get '/my/url/to/search/for/beers' => sub {
-      shift->render_text("here is my awesome beer search page");
+      shift->render_text("Here is a page for searching for beers.");
  } => "beer/search";
 
+ get '/beer/create' => sub {
+    shift->render_text("Here is a page to create a beer.");
+ };
  app->start
 
  ./Beer daemon
 
 =head1 DESCRIPTION
 
-This is an implementation of a navigational structure
-called "toto": "tabs on this object" which is
-as follows :
+This plugin provides a navigational structure for a Mojolicious
+or Mojolicious::Lite app.
 
-Given a collection of objects (e.g. beers, breweries,
-pubs), come up with two types of pages :
+It provides a menu for changing between types of objects, and it
+provides rows of tabs which correspond to actions.
 
-    - pages associated with one object (e.g. view, edit)
+The rows of tabs which are displayed may relate to a particular
+selected object, or may relate to zero or many objects.
 
-    - pages associated with zero or more than one object (e.g. search, browse)
+This may be thought of as an extension of CRUD or BREAD :
+The actions "create", "add", "browse", "search" are examples
+of actions which correspond to zero or many objects.
 
-Then Toto refers to a screen with three types of tab lists :
+The actions "read", "edit", "update", "delete" are actions
+which are for exactly one object.
 
-    - a list of all the types of objects
+A data structure is used to configure the navigational structure.
+This data structure should describe the types of objects
+as well as the possible actions.
 
-    - a list of all the actions possible on one object
+For Mojolicious::Lite apps, routes whose names are of the form
+"controller/action" will automatically be placed into the navigational
+structure.  Note that each "controller" corresponds to one "object".
 
-    - a list of all the actions possible on zero or multiple objects
+For Mojolicious apps, methods in controller classes will be used
+if they exist.
 
-After creating a structure, as in the synopsis, and starting
-a mojolicious app, there will be a site as well as sample code
-and sample objects.
-
-Route names of the form "controller/action" will automatically
-be placed into the toto navigational structure.
-
-Controller classes may also be used; they will be automatically
-called if they exist (e.g. "Beer::Pub::search()").
-
-A template for a given page may be in either of these two places :
+In addition to the expected template location,
 
     templates/$controller/$action.html.ep
+
+, toto will also look for a template in
+
     templates/$action.html.ep
 
-=head1 TODO
-
-much more documentation
+as a default action for all controller classes.
 
 =cut
 
