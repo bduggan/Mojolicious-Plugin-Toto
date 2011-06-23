@@ -129,8 +129,10 @@ $(document).ready(function () {
 This is the page for <%= $action %> for
 <%= $controller %> <%= $key %>.
 <pre class="ui-widget code">
-get '/<%= $controller %>/<%= $action %>' => sub {
+get '/<%= $controller %>/<%= $action %>/*key' => sub {
+% if ($self->app->routes->namespace) {
     # or define <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>::<%= $action %>()
+% }
     ...
 } => '<%= $controller %>/<%= $action %>';
 
@@ -144,7 +146,9 @@ This is the page for
 % use Mojo::ByteStream qw/b/;
 <pre class="ui-widget code">
 get '/<%= $controller %>/<%= $action %>' => sub {
+% if ($self->app->routes->namespace) {
     # or define <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>::<%= $action %>()
+% }
     ...
 } => '<%= $controller %>/<%= $action %>';
 
