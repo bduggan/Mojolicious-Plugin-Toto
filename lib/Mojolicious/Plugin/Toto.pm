@@ -22,7 +22,8 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
                      many => [qw/phonelist mailing_list/] },
         pub     => { one  => [qw/view info comments hours/],
                      many => [qw/search map/] },
-    ]
+    ],
+    themeswitcher => 1,
  ;
 
  app->start
@@ -152,6 +153,7 @@ sub register {
     $app->routes->get('/' => sub { shift->redirect_to($first_controller) } );
 
     for ($app, Toto::app()) {
+        $_->helper( toto_config => sub { $conf } );
         $_->helper( model_class => sub { $conf->{model_class} || "Toto::Model" });
         $_->helper( controllers => sub { @controllers } );
         $_->helper(

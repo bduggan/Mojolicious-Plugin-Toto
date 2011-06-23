@@ -79,6 +79,26 @@ $(".toptab_container ul li").click(function() {
 });
 
 </script>
+
+% if (toto_config->{themeswitcher}) {
+% my $theme = $self->cookie('toto-theme') || "Smoothness";
+% $theme = b($theme)->url_unescape;
+<script>
+$(document).ready(function () {
+    $.cookie('jquery-ui-theme', "<%= $theme %>");
+    $('#ThemeRoller').themeswitcher({
+        loadTheme : "<%= $theme %>",
+        onSelect : function() {
+         $.cookie('toto-theme', $.cookie("jquery-ui-theme"), { path : '/' });
+         }
+        });
+});
+</script>
+<script type="text/javascript"
+  src="http://jqueryui.com/themeroller/themeswitchertool/">
+</script>
+<div id="ThemeRoller" style='position:fixed; top:2px; right:5px;'></div>
+% }
 </html>
 
 @@ top_tabs_plural.html.ep
