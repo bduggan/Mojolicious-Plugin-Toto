@@ -87,7 +87,7 @@ sub register {
 
     $app->routes->get('/jq.css')->to("Toto");
     $app->routes->get('/toto.css')->to("Toto");
-    $app->routes->get('/images/:which.png')->to("Toto"); # TODO subdir
+    $app->routes->get('/toto/images/:which.png')->to("Toto");
 
     for my $controller (keys %menu) {
 
