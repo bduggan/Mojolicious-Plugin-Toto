@@ -109,17 +109,12 @@ $(".toptab_container ul li").click(function() {
 This is the page for <%= $action %> for
 <%= $controller %> <%= $key %>.
 <pre class="code">
-cat > lib/<%= $self->app->routes->namespace %>/<%= b($controller)->camelize %>.pm
-package <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>;
-use Mojo::Base 'Mojolicious::Controller';
-sub <%= $action %> {
-    my $c = shift;
-    my $<%= $controller %> = shift;
-    # <%= $action %> for <%= $controller %>
+get '/<%= $controller %>/<%= $action %>' => sub {
+    # or define <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>::<%= $action %>()
     ...
-}
+} => '<%= $controller %>/<%= $action %>';
 
-cat > templates/<%= $controller %>/<%= $action %>.html.ep
+# templates/<%= $controller %>/<%= $action %>.html.ep
 This is the page for
 &lt%= $action %&gt; for &lt;%= $controller %&gt;
 &lt;%= $<%= $controller %>-&gt;key %&gt;
@@ -128,18 +123,15 @@ This is the page for
 @@ plural.html.ep
 % use Mojo::ByteStream qw/b/;
 <pre class="code">
-cat > lib/<%= $self->app->routes->namespace %>/<%= b($controller)->camelize %>.pm
-package <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>;
-use Mojo::Base 'Mojolicious::Controller';
-sub <%= $action %> {
-    my $c = shift;
+get '/<%= $controller %>/<%= $action %>' => sub {
+    # or define <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>::<%= $action %>()
     ...
-}
+} => '<%= $controller %>/<%= $action %>';
 
-cat > templates/<%= $controller %>/<%= $action %>.html.ep
+# templates/<%= $controller %>/<%= $action %>.html.ep
 <%= '%' %> for (1..10) {
-<%= '%' %>= link_to "$controller/default/$_" => begin
-&lt;%= $controller %&gt; &lt;%= $_ %&gt;&lt;br&gt;
+<%= '%' %>= link_to "<%= $controller %>/default/$_" => begin
+<%= $controller %> &lt;%= $_ %&gt;&lt;br&gt;
 <%= '%' %>= end
 <%= '%' %> }
 </pre>

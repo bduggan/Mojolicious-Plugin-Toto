@@ -4,8 +4,6 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
 
 =head1 SYNOPSIS
 
- cat > ./Beer
- #!/usr/bin/env perl
  use Mojolicious::Lite;
 
  get '/my/url/to/list/beers' => sub {
