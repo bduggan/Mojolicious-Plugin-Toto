@@ -42,7 +42,7 @@ __DATA__
 % }
     </ul>
     <div class="tab_container">
-         <div class="toptab_container">
+         <div class="toptab_container ui-tabs ui-widget ui-widget-content ui-corner-all">
 % if (stash 'key') {
 %= include 'top_tabs_single';
 % } else {
@@ -61,19 +61,19 @@ $(".toptab_container").show(); //Show tab content
 //On Click Event
 $("ul.tabs li").click(function() {
     $("ul.tabs li").removeClass("active"); //Remove any "active" class
+    $("ul.tabs li").removeClass("ui-state-active"); //Remove any "active" class
     $(this).addClass("active"); //Add "active" class to selected tab
+    $(this).addClass("ui-state-active"); //Add "active" class to selected tab
     $(".toptab_container").hide(); //Hide all tab content
     var activeTab = $(this).find("a").attr("href"); //Find the active tab + content
     $(activeTab).fadeIn(); //Fade in the active content
     return false;
 });
 //$(".toptab_container").tabs();
-$(".toptab_container").addClass("ui-tabs ui-widget ui-widget-content ui-corner-all");
-$(".toptab_container ul").addClass("ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all");
 $(".toptab_container ul li").addClass("ui-state-default ui-corner-top");
-$(".toptab_container ul li.active").addClass("ui-state-active");
 $(".toptab_container ul li").click(function() {
     $("ul.toptabs li").removeClass("ui-state-active");
+    $("ul.toptabs li").removeClass("active");
     $(".page_content").hide();
     $(this).addClass("ui-state-active");
 });
@@ -102,9 +102,9 @@ $(document).ready(function () {
 </html>
 
 @@ top_tabs_plural.html.ep
-<ul class="toptabs">
+<ul class="toptabs ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
 % for my $a (actions) {
-    <li <%== $a eq $action ? q[ class="active"] : '' %>>
+    <li <%== $a eq $action ? q[ class="active ui-state-active"] : '' %>>
         <%= link_to "$controller/$a" => begin =%>
             <%= $a =%>
         <%= end =%>
@@ -114,9 +114,9 @@ $(document).ready(function () {
 
 @@ top_tabs_single.html.ep
 <h2><%= $controller %> <%= $instance->key %></h2>
-<ul class="toptabs">
+<ul class="toptabs ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
 % for my $a (actions) {
-    <li <%== $a eq $action ? q[ class="active"] : '' %>>
+    <li <%== $a eq $action ? q[ class="active ui-state-active"] : '' %>>
         <%= link_to "$controller/$a/".$instance->key => begin =%>
             <%= $a =%>
         <%= end =%>
