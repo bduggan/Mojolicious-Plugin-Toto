@@ -78,7 +78,7 @@ use Toto;
 use strict;
 use warnings;
 
-our $VERSION = 0.04;
+our $VERSION = 0.05;
 
 sub register {
     my ($self, $app, $conf) = @_;
