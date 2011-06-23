@@ -46,9 +46,11 @@ edit, add, and delete are operations on 1 object.
 Toto groups all pages into two categories : either they act on one
 object, or they act on 0 or many objects.
 
-A rows of tabs is displayed which shows other actions.  The row
-depends on the context -- the type of object, and whether or not
+A rows of tabs is displayed which shows other actions.  The actions
+in the row depend on context -- the type of object, and whether or not
 an object is selected.
+
+A second row of tabs on the left shows all possible object types.
 
 A data structure is used to configure the navigational structure.
 This data structure should describe the types of objects
