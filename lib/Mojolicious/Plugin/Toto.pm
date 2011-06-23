@@ -154,26 +154,28 @@ sub register {
         $_->helper(
             actions => sub {
                 my $c    = shift;
-                my $for  = shift || $c->stash("controller");
+                my $for  = shift || $c->stash("controller") || die "no controller";
                 my $mode = defined( $c->stash("key") ) ? "one" : "many";
                 @{ $menu{$for}{$mode} || [] };
             }
         );
     }
 
-    #$app->hook(before_render => sub {
-    #        my $c = shift;
-    #        my $name = $c->stash("template"); # another method for name?
-    #        return unless $name && _main_routes($c)->{$name};
-    #        my ($controller,$action) = $name =~ m{^(.*)/(.*)$};
-    #        $c->app->log->info("found $action, $controller");
-    #        $c->stash->{template_class} = "Toto";
-    #        $c->stash->{layout} = "toto";
-    #        $c->stash->{action} = $action;
-    #        $c->stash->{controller} = $controller;
-    #        my $key = $c->stash("key") or return;
-    #        $c->stash(instance => $c->model_class->new(key => $key));
-    #    });
+    $app->hook(
+        before_render => sub {
+            my $c    = shift;
+            my $args = shift;
+            return if $args->{partial};
+            my $name = $c->match->endpoint->name;
+            my ( $controller, $action ) = $name =~ m{^(.*)/(.*)$};
+            $c->stash->{template_class} = "Toto";
+            $c->stash->{layout}         = "toto";
+            $c->stash->{action}         = $action;
+            $c->stash->{controller}     = $controller;
+            my $key = $c->stash("key") or return 1;
+            $c->stash( instance => $c->model_class->new( key => $key ) );
+        }
+    );
 }
 
 1;
