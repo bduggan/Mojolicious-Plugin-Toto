@@ -14,7 +14,7 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
 
  get '/beer/create' => sub {
     shift->render_text("Here is a page to create a beer.");
- };
+ } => "beer/create";
 
  plugin 'toto' =>
     menu => [
@@ -39,11 +39,11 @@ or Mojolicious::Lite app.
 It provides a menu for changing between types of objects, and it
 provides rows of tabs which correspond to actions.
 
-It extends on the idea of BREAD or CRUD -- in a BREAD application,
+It extends the idea of BREAD or CRUD -- in a BREAD application,
 browse and add are operations on aggregate (0 or many) objects, while
 edit, add, and delete are operations on 1 object.
 
-Toto groups all pages into two categories : either they act on 1
+Toto groups all pages into two categories : either they act on one
 object, or they act on 0 or many objects.
 
 A rows of tabs is displayed which shows other actions.  The row
@@ -136,9 +136,10 @@ sub register {
         );
 
     }
-
-
     my @controllers = grep !ref($_), @menu;
+    my $first_controller = $controllers[0];
+    $app->routes->get('/' => sub { shift->redirect_to($first_controller) } );
+
     for ($app, Toto::app()) {
         $_->helper( model_class => sub { $conf->{model_class} || "Toto::Model" });
         $_->helper( controllers => sub { @controllers } );
@@ -157,8 +158,11 @@ sub register {
             my $c    = shift;
             my $args = shift;
             return if $args->{partial};
+            return if $args->{no_toto} or $c->stash("no_toto");
+            return unless $c->match && $c->match->endpoint;
             my $name = $c->match->endpoint->name;
             my ( $controller, $action ) = $name =~ m{^(.*)/(.*)$};
+            return unless $controller && $action;
             $c->stash->{template_class} = "Toto";
             $c->stash->{layout}         = "toto";
             $c->stash->{action}         = $action;
