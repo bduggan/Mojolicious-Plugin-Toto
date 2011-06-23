@@ -33,10 +33,10 @@ __DATA__
 %= javascript '/js/jquery.js';
 </head>
 <body>
-<div class="container">
-    <ul class="tabs">
+<div class="ui-tabs ui-widget ui-widget-content ui-corner-all container">
+    <ul class="ui-widget tabs">
 % for my $c (controllers) {
-        <li <%== $c eq $controller ? q[ class="active"] : "" =%>>
+        <li <%== $c eq $controller ? q[ class="ui-state-active"] : "" =%>>
             <%= link_to $c => begin =%><%= $c =%><%= end =%>
         </li>
 % }
@@ -128,7 +128,7 @@ $(document).ready(function () {
 @@ single.html.ep
 This is the page for <%= $action %> for
 <%= $controller %> <%= $key %>.
-<pre class="code">
+<pre class="ui-widget code">
 get '/<%= $controller %>/<%= $action %>' => sub {
     # or define <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>::<%= $action %>()
     ...
@@ -142,7 +142,7 @@ This is the page for
 
 @@ plural.html.ep
 % use Mojo::ByteStream qw/b/;
-<pre class="code">
+<pre class="ui-widget code">
 get '/<%= $controller %>/<%= $action %>' => sub {
     # or define <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>::<%= $action %>()
     ...
@@ -178,7 +178,7 @@ body {
     background: #f0f0f0;
     margin: 0;
     padding: 0;
-    font: 10px normal Verdana, Arial, Helvetica, sans-serif;
+    font: Verdana, Arial, Helvetica, sans-serif;
     color: #444;
 }
 .container {width: 90% margin: 10px auto; height:95%;}
@@ -188,8 +188,6 @@ ul.tabs {
     float: left;
     list-style: none;
     height: 32px;
-    border-bottom: 1px solid #999;
-    border-left: 1px solid #999;
     width: 15%;
 }
 ul.tabs li {
@@ -198,28 +196,21 @@ ul.tabs li {
     padding: 0;
     height: 31px;
     line-height: 31px;
-    border: 1px solid #999;
     border-left: none;
     margin-bottom: 0px;
-    background: #e0e0e0;
     overflow: hidden;
     position: relative;
 }
 ul.tabs li a {
     text-decoration: none;
-    color: #000;
     display: block;
     font-size: 1.2em;
     padding: 0 20px;
-    border: 1px solid #fff;
     outline: none;
 }
 ul.tabs li a:hover {
-    background: #ccc;
 }   
 html ul.tabs li.active, html ul.tabs li.active a:hover  {
-    background: #fff;
-    border-bottom: 1px solid #fff;
 }
 .tab_container {
     border: 1px solid #999;
@@ -251,7 +242,7 @@ pre.code {
     margin-right:20px;
     padding:5px;
     border:1px grey dashed;
-    background-color:#dda;
+    font-family:monospace;
     }
 
 @@ jq.css
