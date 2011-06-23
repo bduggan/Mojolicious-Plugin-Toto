@@ -21,7 +21,7 @@ provides:
   Toto::Model:
     file: lib/Toto/Model.pm
 requires:
-  Mojolicious: 1.0
+  Mojolicious: 1.46
 resources:
   license: http://dev.perl.org/licenses/
 version: 0.04
