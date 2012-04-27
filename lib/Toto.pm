@@ -19,6 +19,16 @@ __DATA__
 <title><%= title %></title>
 %= base_tag
 %= stylesheet '/toto/bootstrap-min.css';
+<style>
+pre.toto_code {
+    float:right;
+    right:10%;
+    padding:5px;
+    border:1px grey dashed;
+    font-family:monospace;
+    position:absolute;
+    }
+</style>
 </head>
 <body>
 <div class="container">
@@ -69,7 +79,7 @@ __DATA__
 @@ single.html.ep
 This is the page for <%= $action %> for
 <%= $controller %> <%= $key %>.
-<pre>
+<pre class="toto_code">
 get '/<%= $controller %>/<%= $action %>/*key' => sub {
 % if ($self->app->routes->namespace) {
     # or define <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>::<%= $action %>()
@@ -85,7 +95,7 @@ This is the page for
 
 @@ plural.html.ep
 % use Mojo::ByteStream qw/b/;
-<pre>
+<pre class="toto_code">
 get '/<%= $controller %>/<%= $action %>' => sub {
 % if ($self->app->routes->namespace) {
     # or define <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>::<%= $action %>()

@@ -23,7 +23,6 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
         pub     => { one  => [qw/view info comments hours/],
                      many => [qw/search map/] },
     ],
-    themeswitcher => 1,
  ;
 
  app->start
@@ -63,7 +62,7 @@ be used if they exist.
 Because routes are created automatically, creating a page may be
 done by just adding a file named templates/controller/action.html.ep.
 
-Styling is done (mostly) with jquery css.
+Styling is done with twitter's bootstrap <http://twitter.github.com/bootstrap>.
 
 =head1 SEE ALSO
 
@@ -87,9 +86,6 @@ sub register {
     my @menu = @{ $conf->{menu} || [] };
     my %menu = @menu;
 
-    $app->routes->get('/jq.css')->to("Toto");
-    $app->routes->get('/toto.css')->to("Toto");
-    $app->routes->get('/toto/images/:which.png')->to("Toto");
     $app->routes->get('/toto/bootstrap-min.css')->to("Toto");
     $app->routes->get('/toto/bootstrap-min.js')->to("Toto");
 
