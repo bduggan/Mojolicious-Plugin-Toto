@@ -90,6 +90,8 @@ sub register {
     $app->routes->get('/jq.css')->to("Toto");
     $app->routes->get('/toto.css')->to("Toto");
     $app->routes->get('/toto/images/:which.png')->to("Toto");
+    $app->routes->get('/toto/bootstrap-min.css')->to("Toto");
+    $app->routes->get('/toto/bootstrap-min.js')->to("Toto");
 
     for my $controller (keys %menu) {
 
@@ -101,8 +103,7 @@ sub register {
             $app->routes->get(
                 "/$controller/$action" => sub {
                     my $c = shift;
-                    my $root = $c->app->renderer->root;
-                    my @found = glob "$root/$controller/$action.*";
+                    my @found = map { glob "$_/$controller/$action.*" } $c->app->renderer->paths;
                     return if @found;
                     $c->stash->{template}       = "plural";
                     $c->stash->{template_class} = 'Toto';
@@ -127,8 +128,7 @@ sub register {
                 "/$controller/$action/(*key)" => sub {
                     my $c = shift;
                     $c->stash(instance => $c->model_class->new(key => $c->stash('key')));
-                    my $root = $c->app->renderer->root;
-                    my @found = glob "$root/$controller/$action.*";
+                    my @found = map { glob "$_/$controller/$action.*" } $c->app->renderer->paths;
                     return if @found;
                     $c->stash->{template}       = "single";
                     $c->stash->{template_class} = 'Toto';
