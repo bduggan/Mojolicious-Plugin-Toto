@@ -1,0 +1,16 @@
+This is the page for <%= $action %> for
+<%= $controller %> <%= $key %>.
+<pre class="toto_code">
+get '/<%= $controller %>/<%= $action %>/*key' => sub {
+% if ($self->app->routes->namespace) {
+    # or define <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>::<%= $action %>()
+% }
+    ...
+} => '<%= $controller %>/<%= $action %>';
+
+# templates/<%= $controller %>/<%= $action %>.html.ep
+This is the page for
+&lt%= $action %&gt; for &lt;%= $controller %&gt;
+&lt;%= $<%= $controller %>-&gt;key %&gt;
+</pre>
+

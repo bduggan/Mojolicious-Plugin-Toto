@@ -1,0 +1,18 @@
+#!/usr/bin/env perl
+
+use Mojolicious::Lite;
+use lib './lib';
+
+plugin 'toto' =>
+   menu => [
+       beer    => { one  => [qw/view edit pictures notes/],
+                    many => [qw/list create search browse/] },
+       brewery => { one  => [qw/view edit directions beers info/],
+                    many => [qw/phonelist mailing_list/] },
+       pub     => { one  => [qw/view info comments hours/],
+                    many => [qw/search map/] },
+   ],
+;
+
+app->start
+

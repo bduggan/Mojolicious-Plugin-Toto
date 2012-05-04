@@ -1,0 +1,13 @@
+
+<h2><%= $controller %> <%= $instance->key %></h2>
+<ul class="nav nav-tabs">
+% for my $a (actions) {
+    <li <%== $a eq $action ? q[ class="active"] : '' %>>
+        <%= link_to "$toto_prefix/$controller/$a/".$instance->key => begin =%>
+            <%= $a =%>
+        <%= end =%>
+    </li>
+% }
+</ul>
+
+

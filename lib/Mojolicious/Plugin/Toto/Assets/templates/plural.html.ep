@@ -1,0 +1,22 @@
+% use Mojo::ByteStream qw/b/;
+<pre class="toto_code">
+get '/<%= $controller %>/<%= $action %>' => sub {
+% if ($self->app->routes->namespace) {
+    # or define <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>::<%= $action %>()
+% }
+    ...
+} => '<%= $controller %>/<%= $action %>';
+
+# templates/<%= $controller %>/<%= $action %>.html.ep
+<%= '%' %> for (1..10) {
+<%= '%' %>= link_to "<%= $toto_prefix %>/<%= $controller %>/default/$_" => begin
+<%= $controller %> &lt;%= $_ %&gt;&lt;br&gt;
+<%= '%' %>= end
+<%= '%' %> }
+</pre>
+% for (1..10) {
+%= link_to "$toto_prefix/$controller/default/$_" => begin
+<%= $controller %> <%= $_ %><br>
+%= end
+% }
+
