@@ -1,6 +1,7 @@
 
-<h2><%= $controller %> <%= $instance->key %></h2>
+<h2><center><%= $controller %> <%= $instance->key %></center></h2>
 <ul class="nav nav-tabs">
+    <li style='height:25px;'>&nbsp;</li>
 % for my $a (actions) {
     <li <%== $a eq $action ? q[ class="active"] : '' %>>
         <%= link_to "$toto_prefix/$controller/$a/".$instance->key => begin =%>
@@ -8,6 +9,7 @@
         <%= end =%>
     </li>
 % }
+    <li style='height:25px;'>&nbsp;</li>
 </ul>
 
 

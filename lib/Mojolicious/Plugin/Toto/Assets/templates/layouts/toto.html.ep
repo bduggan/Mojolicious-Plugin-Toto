@@ -18,18 +18,14 @@ pre.toto_code {
 </head>
 <body>
 <div class="container">
-<div class="row">
-<div class="span1">&nbsp;</div>
-<div class="span11">
     <ul class="nav nav-tabs">
+        <li style='width:100px;'>&nbsp;</li>
 % for my $c (controllers) {
         <li <%== $c eq $controller ? q[ class="active"] : "" =%>>
             <%= link_to $c => begin =%><%= $c =%><%= end =%>
         </li>
 % }
     </ul>
-</div>
-</div>
     <div class="tabbable tabs-left">
 % if (stash 'key') {
 %= include 'top_tabs_single';
