@@ -18,7 +18,7 @@ get '/beer/browse' => sub { shift->render_text("my name is inigo montoya") } => 
 plugin 'toto' => menu => $menu;
 
 my $t = Test::Mojo->new();
-$t->max_redirects(1);
+$t->ua->max_redirects(1);
 
 my @hrefs;
 $t->get_ok('/some/crazy/url')->status_is(200)->content_like(qr/hi there/i);
