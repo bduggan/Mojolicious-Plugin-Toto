@@ -109,14 +109,9 @@ sub register {
             $first ||= $action;
             $app->log->debug("Adding route for $prefix/$controller/$action");
             $app->routes->get(
-                "$prefix/$controller/$action" => sub {
-                    my $c = shift;
-                    my @found = map { glob "$_/$controller/$action.*" } $c->app->renderer->paths;
-                    return if @found;
-                    $c->app->renderer->paths->[0] = $default_path;
-                    $c->stash->{template}           = "plural";
-                    $c->stash->{toto_prefix}        = $prefix;
-                  } => {
+                "$prefix/$controller/$action" => {
+                    template   => "plural",
+                    toto_prefix => $prefix,
                     controller => $controller,
                     action     => $action,
                     layout     => "toto"
@@ -137,14 +132,10 @@ sub register {
             $app->log->debug("Adding route for $prefix/$controller/$action/*key");
             $app->routes->get( "$prefix/$controller/$action/(*key)" => sub {
                     my $c = shift;
-                    $c->app->log->debug("hi there");
                     $c->stash(instance => $c->model_class->new(key => $c->stash('key')));
-                    my @found = map { glob "$_/$controller/$action.*" } $c->app->renderer->paths;
-                    return if @found;
-                    $c->stash->{template}           = "single";
-                    $c->stash->{toto_prefix}        = $prefix;
-                    $c->app->renderer->paths->[0] = $default_path;
                   } => {
+                      template   => "single",
+                      toto_prefix => $prefix,
                       controller => $controller,
                       action     => $action,
                       layout => "toto",
