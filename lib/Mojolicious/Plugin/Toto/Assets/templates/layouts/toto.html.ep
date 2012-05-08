@@ -20,8 +20,8 @@ pre.toto_code {
 <div class="container">
     <ul class="nav nav-tabs">
         <li style='width:100px;'>&nbsp;</li>
-% for my $c (controllers) {
-        <li <%== $c eq $controller ? q[ class="active"] : "" =%>>
+% for my $c (objects) {
+        <li <%== $c eq $object ? q[ class="active"] : "" =%>>
             <%= link_to $c => begin =%><%= $c =%><%= end =%>
         </li>
 % }

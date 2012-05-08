@@ -1,8 +1,8 @@
 <ul class="nav nav-tabs">
     <li style='height:25px;'>&nbsp;</li>
-% for my $a (actions) {
-    <li <%== $a eq $action ? q[ class="active"] : '' %>>
-        <%= link_to "$toto_prefix/$controller/$a" => begin =%>
+% for my $a (tabs) {
+    <li <%== $a eq $tab ? q[ class="active"] : '' %>>
+        <%= link_to "$toto_prefix/$object/$a" => begin =%>
             <%= $a =%>
         <%= end =%>
     </li>

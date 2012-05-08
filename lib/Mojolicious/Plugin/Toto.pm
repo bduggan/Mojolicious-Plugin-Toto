@@ -42,25 +42,21 @@ Toto groups all pages into two categories : either they act on one
 object, or they act on 0 or many objects.
 
 One set of tabs provides a way to change between types of objects.
-Another row of tabs provides a way to change actions.
+Another row of tabs is specific to the object selected.
 
-The actions displayed depend on context -- the type of object, and
-whether or not an object is selected determine the list of actions
+The tabs displayed depend on context -- the type of object, and
+whether or not an object is selected determine the list of tabs
 that are displayed.
 
 The toto menu data structure is used to generate default routes of
-the form controller/action, for each controller+action pair.
+the form object/tab, for each object+tab pair.
 It is also used to generate the menu and tabs.
 
 By loading the plugin after creating routes, any routes created
 manually which use this naming convention will take precedence over
 the default ones.
 
-For Mojolicious (not lite) apps, methods in controller classes will
-be used if they exist.
-
-Because routes are created automatically, creating a page may be
-done by just adding a file named templates/controller/action.html.ep.
+Creating a page may be done by just adding a file named templates/object/tab.html.ep.
 
 Styling is done with twitter's bootstrap <http://twitter.github.com/bootstrap>.
 
@@ -100,94 +96,76 @@ sub register {
     my $default_path = catdir($base,'templates');
     push @{$app->renderer->paths}, catdir($base, 'templates');
     push @{$app->static->paths},   catdir($base, 'public');
+    $app->defaults(layout => "toto", toto_prefix => $prefix);
 
-    for my $controller (keys %menu) {
+    for my $object (keys %menu) {
 
         my $first;
-        for my $action (@{ $menu{$controller}{many} || []}) {
+        for my $tab (@{ $menu{$object}{many} || []}) {
             # TODO skip existing routes
-            $first ||= $action;
-            $app->log->debug("Adding route for $prefix/$controller/$action");
+            $first ||= $tab;
+            my @found = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
+            $app->log->debug("Adding route for $prefix/$object/$tab");
             $app->routes->get(
-                "$prefix/$controller/$action" => {
-                    template   => "plural",
-                    toto_prefix => $prefix,
-                    controller => $controller,
-                    action     => $action,
-                    layout     => "toto"
-                  } => "$controller/$action"
+                "$prefix/$object/$tab" => {
+                    template   => (@found ? "$object/$tab" : "plural"),
+                    object => $object,
+                    tab => $tab,
+                  } => "$object/$tab"
             );
         }
         my $first_action = $first;
         $app->routes->get(
-            "$prefix/$controller" => sub {
+            "$prefix/$object" => sub {
                 my $c = shift;
-                $c->redirect_to("$prefix/$controller/$first_action");
-              } => "$controller"
+                $c->redirect_to("$prefix/$object/$first_action");
+              } => "$object"
         );
         $first = undef;
-        for my $action (@{ $menu{$controller}{one} || [] }) {
+        for my $tab (@{ $menu{$object}{one} || [] }) {
             # TODO skip existing routes
-            $first ||= $action;
-            $app->log->debug("Adding route for $prefix/$controller/$action/*key");
-            $app->routes->get( "$prefix/$controller/$action/(*key)" => sub {
+            $first ||= $tab;
+            my @found = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
+            $app->log->debug("Adding route for $prefix/$object/$tab/*key");
+            $app->routes->get( "$prefix/$object/$tab/(*key)" => sub {
                     my $c = shift;
                     $c->stash(instance => $c->model_class->new(key => $c->stash('key')));
                   } => {
-                      template   => "single",
-                      toto_prefix => $prefix,
-                      controller => $controller,
-                      action     => $action,
-                      layout => "toto",
-                  } => "$controller/$action"
+                      template   => (@found ? "$object/$tab" : "single"),
+                      object => $object,
+                      tab     => $tab,
+                  } => "$object/$tab"
             );
         }
         my $first_key = $first;
         $app->routes->get(
-            "$prefix/$controller/default/(*key)" => sub {
+            "$prefix/$object/default/(*key)" => sub {
                 my $c = shift;
                 my $key = $c->stash("key");
-                $c->redirect_to("$controller/$first_key/$key");
-              } => "$controller/default"
+                $c->redirect_to("$object/$first_key/$key");
+              } => "$object/default"
         );
 
     }
-    my @controllers = grep !ref($_), @menu;
-    my $first_controller = $controllers[0];
-    $app->routes->get("$prefix/" => sub { shift->redirect_to($first_controller) } );
+    my @objects = grep !ref($_), @menu;
+    die "no objects" unless @objects;
+    my $first_object = $objects[0];
+    $app->routes->get("$prefix/" => sub { shift->redirect_to($first_object) } );
 
     for ($app) {
         $_->helper( toto_config => sub { $conf } );
         $_->helper( model_class => sub { $conf->{model_class} || "Mojolicious::Plugin::Toto::Model" });
-        $_->helper( controllers => sub { @controllers } );
+        $_->helper( objects => sub { @objects } );
         $_->helper(
-            actions => sub {
+            tabs => sub {
                 my $c    = shift;
-                my $for  = shift || $c->stash("controller") || die "no controller";
+                my $for  = shift || $c->stash("object") || die "no object";
                 my $mode = defined( $c->stash("key") ) ? "one" : "many";
                 @{ $menu{$for}{$mode} || [] };
             }
         );
     }
 
-    $app->hook(
-        before_render => sub {
-            my $c    = shift;
-            my $args = shift;
-            return if $args->{partial};
-            return if $args->{no_toto} or $c->stash("no_toto");
-            return unless $c->match && $c->match->endpoint;
-            my $name = $c->match->endpoint->name;
-            my ( $controller, $action ) = $name =~ m{^(.*)/(.*)$};
-            return unless $controller && $action;
-            $c->stash->{template_class} = "Toto";
-            $c->stash->{layout}         = "toto";
-            $c->stash->{action}         = $action;
-            $c->stash->{controller}     = $controller;
-            my $key = $c->stash("key") or return 1;
-            $c->stash( instance => $c->model_class->new( key => $key ) );
-        }
-    );
     $self;
 }
 
@@ -219,8 +197,8 @@ pre.toto_code {
 <div class="span1">&nbsp;</div>
 <div class="span11">
     <ul class="nav nav-tabs">
-% for my $c (controllers) {
-        <li <%== $c eq $controller ? q[ class="active"] : "" =%>>
+% for my $c (objects) {
+        <li <%== $c eq $object ? q[ class="active"] : "" =%>>
             <%= link_to "$toto_prefix/$c" => begin =%><%= $c =%><%= end =%>
         </li>
 % }

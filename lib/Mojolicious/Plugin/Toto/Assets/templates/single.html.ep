@@ -1,16 +1,16 @@
-This is the page for <%= $action %> for
-<%= $controller %> <%= $key %>.
+This is the page for <%= $tab %> for
+<%= $object %> <%= $key %>.
 <pre class="toto_code">
-get '/<%= $controller %>/<%= $action %>/*key' => sub {
+get '/<%= $object %>/<%= $tab %>/*key' => sub {
 % if ($self->app->routes->namespace) {
-    # or define <%= $self->app->routes->namespace %>::<%= b($controller)->camelize %>::<%= $action %>()
+    # or define <%= $self->app->routes->namespace %>::<%= b($object)->camelize %>::<%= $tab %>()
 % }
     ...
-} => '<%= $controller %>/<%= $action %>';
+} => '<%= $object %>/<%= $tab %>';
 
-# templates/<%= $controller %>/<%= $action %>.html.ep
+# templates/<%= $object %>/<%= $tab %>.html.ep
 This is the page for
-&lt%= $action %&gt; for &lt;%= $controller %&gt;
-&lt;%= $<%= $controller %>-&gt;key %&gt;
+&lt%= $tab %&gt; for &lt;%= $object %&gt;
+&lt;%= $<%= $object %>-&gt;key %&gt;
 </pre>
 
