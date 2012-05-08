@@ -35,30 +35,34 @@ This plugin provides a navigational structure and a default set
 of routes for a Mojolicious or Mojolicious::Lite app.
 
 It extends the idea of BREAD or CRUD -- in a BREAD application,
-browse and add are operations on aggregate (0 or many) objects, while
-edit, add, and delete are operations on 1 object.
+browse and add are operations on zero or many objects, while
+edit, add, and delete are operations on one object.
 
-Toto groups all pages into two categories : either they act on one
-object, or they act on 0 or many objects.
+Toto groups all pages into these two categories : either they act on
+zero or many objects, or they act on one object.
 
 One set of tabs provides a way to change between types of objects.
-Another row of tabs is specific to the object selected.
+Another set of tabs is specific to the type of object selected.
 
-The tabs displayed depend on context -- the type of object, and
-whether or not an object is selected determine the list of tabs
-that are displayed.
+The second set of tabs varies depending on whether or not
+an object (instance) has been selected.
 
-The toto menu data structure is used to generate default routes of
-the form object/tab, for each object+tab pair.
-It is also used to generate the menu and tabs.
+The toto menu data structure (above) is used to generate default routes
+named <object>/<tab>, for each object+tab pair.  It is also used to
+generate the navigational structure.
 
 By loading the plugin after creating routes, any routes created
 manually which use this naming convention will take precedence over
-the default ones.
+the automatically generated ones.
 
-Creating a page may be done by just adding a file named templates/object/tab.html.ep.
+Also templates in the directory templates/<object>/<tab>.html.ep will
+be used when they exist.
 
 Styling is done with twitter's bootstrap <http://twitter.github.com/bootstrap>.
+
+After registering this plugin, several helpers are available :
+
+toto_config, model_class, objects, current_object, current_tab, current_instance
 
 =head1 SEE ALSO
 
