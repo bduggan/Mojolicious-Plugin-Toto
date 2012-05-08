@@ -159,11 +159,24 @@ sub register {
         $_->helper(
             tabs => sub {
                 my $c    = shift;
-                my $for  = shift || $c->stash("object") || die "no object";
+                my $for  = shift || $c->current_object;
                 my $mode = defined( $c->stash("key") ) ? "one" : "many";
                 @{ $menu{$for}{$mode} || [] };
             }
         );
+        $_->helper( current_object => sub {
+                my $c = shift;
+                $c->stash('object') || [ split '\/', $c->current_route ]->[0]
+            } );
+        $_->helper( current_tab => sub {
+                my $c = shift;
+                $c->stash('tab') || [ split '\/', $c->current_route ]->[1]
+            } );
+        $_->helper( current_instance => sub {
+                my $c = shift;
+                my $key = $c->stash("key") || [ split '\/', $c->current_route ]->[2];
+                return $c->model_class->new(key => $key);
+            } );
     }
 
     $self;

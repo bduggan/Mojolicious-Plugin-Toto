@@ -21,7 +21,7 @@ pre.toto_code {
     <ul class="nav nav-tabs">
         <li style='width:100px;'>&nbsp;</li>
 % for my $c (objects) {
-        <li <%== $c eq $object ? q[ class="active"] : "" =%>>
+        <li <%== $c eq current_object() ? q[ class="active"] : "" =%>>
             <%= link_to $c => begin =%><%= $c =%><%= end =%>
         </li>
 % }
