@@ -18,24 +18,31 @@ pre.toto_code {
 </head>
 <body>
 <div class="container">
-    <ul class="nav nav-tabs">
-        <li style='width:100px;'>&nbsp;</li>
-% for my $c (objects) {
-        <li <%== $c eq current_object() ? q[ class="active"] : "" =%>>
-            <%= link_to $c => begin =%><%= $c =%><%= end =%>
-        </li>
-% }
-    </ul>
-    <div class="tabbable tabs-left">
-% if (stash 'key') {
-%= include 'top_tabs_single';
-% } else {
-%= include 'top_tabs_plural';
-% }
-         <div class="tab-content" style='width:auto;'>
-         <%= content =%>
-         </div>
+    <div class="row">
+    <div class="span2">
+        <div class="well" style="padding: 8px 0;">
+        <ul class="nav nav-list">
+                <li style='width:100px;'>&nbsp;</li>
+        % for my $c (objects) {
+                <li <%== $c eq current_object() ? q[ class="active"] : "" =%>>
+                    <%= link_to $c => begin =%><%= $c =%><%= end =%>
+                </li>
+        % }
+        </ul>
     </div>
-</div>
+    </div>
+    <div class="span10">
+        <div class="container">
+            % if (stash 'key') {
+            %= include 'top_tabs_single';
+            % } else {
+            %= include 'top_tabs_plural';
+            % }
+            <div class="tab-content" style='width:auto'>
+                     <%= content =%>
+            </div>
+        </div>
+    </div>
+
 </html>
 
