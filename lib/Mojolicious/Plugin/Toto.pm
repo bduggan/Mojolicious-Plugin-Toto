@@ -14,6 +14,8 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
     shift->render_text("Here is a page to create a beer.");
  } => "beer/create";
 
+ get '/pub/view' => { controller => 'Pub', action => 'view' } => 'pub/view';
+
  plugin 'toto' =>
     menu => [
         beer    => { one  => [qw/view edit pictures notes/],
@@ -22,6 +24,10 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
                      many => [qw/phonelist mailing_list/] },
         pub     => { one  => [qw/view info comments hours/],
                      many => [qw/search map/] },
+
+      # object  => { one => ....tabs....
+      #             many => ...more tabs...
+
     ],
  ;
 
@@ -47,22 +53,34 @@ Another set of tabs is specific to the type of object selected.
 The second set of tabs varies depending on whether or not
 an object (instance) has been selected.
 
-The toto menu data structure (above) is used to generate default routes
-named <object>/<tab>, for each object+tab pair.  It is also used to
-generate the navigational structure.
+=head1 HOW DOES IT WORK
 
-By loading the plugin after creating routes, any routes created
-manually which use this naming convention will take precedence over
-the automatically generated ones.
+After loading the toto plugin, the default layout is set to 'toto'.
+The name of the each route is expected to be of the form <object>/<tab>.
+where <object> refers to an object in the menu structure, and <tab>
+is a tab for that object.
 
-Also templates in the directory templates/<object>/<tab>.html.ep will
-be used when they exist.
+Defaults routes are generated for every combination of object + associated tab.
+
+Templates in the directory templates/<object>/<tab>.html.ep will be used when
+they exist.
 
 Styling is done with twitter's bootstrap <http://twitter.github.com/bootstrap>.
 
-After registering this plugin, several helpers are available :
+If a route should be outside of the toto framework, just set the layout, e.g.
+
+    get '/no/toto' => { layout => 'default' } => ...
+
+To route to another controller
+
+    get '/some/route' => { controller => "Foo", action => "bar" } ...
+
+=head1 TODO
+
+Document these helpers, which are added automatically :
 
 toto_config, model_class, objects, current_object, current_tab, current_instance
+
 
 =head1 SEE ALSO
 
