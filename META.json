@@ -38,10 +38,6 @@
       "Mojolicious::Plugin::Toto::Model" : {
          "file" : "lib/Mojolicious/Plugin/Toto/Model.pm",
          "version" : 0
-      },
-      "Toto::Model" : {
-         "file" : "lib/Toto/Model.pm",
-         "version" : 0
       }
    },
    "release_status" : "stable",

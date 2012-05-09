@@ -20,9 +20,6 @@ provides:
   Mojolicious::Plugin::Toto::Model:
     file: lib/Mojolicious/Plugin/Toto/Model.pm
     version: 0
-  Toto::Model:
-    file: lib/Toto/Model.pm
-    version: 0
 requires:
   Mojolicious: 1.46
 resources:
