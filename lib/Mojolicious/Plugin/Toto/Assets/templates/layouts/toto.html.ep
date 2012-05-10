@@ -1,8 +1,10 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><%= title %></title>
 %= base_tag
+%= javascript '/js/jquery.js';
 %= stylesheet '/bootstrap/css/bootstrap.min.css';
 %= javascript '/bootstrap/js/bootstrap.min.js';
 <style>
@@ -17,22 +19,20 @@ pre.toto_code {
 </style>
 </head>
 <body>
-<div class="container">
-    <div class="row">
+<div class="row-fluid">
     <div class="span2">
         <div class="well" style="padding: 8px 0;">
-        <ul class="nav nav-list">
-                <li style='width:100px;'>&nbsp;</li>
-        % for my $c (objects) {
-                <li <%== $c eq current_object() ? q[ class="active"] : "" =%>>
-                    <%= link_to $c => begin =%><%= $c =%><%= end =%>
-                </li>
-        % }
-        </ul>
-    </div>
+            <ul class="nav nav-list">
+                    <li style='width:100px;'>&nbsp;</li>
+            % for my $c (objects) {
+                    <li <%== $c eq current_object() ? q[ class="active"] : "" =%>>
+                        <%= link_to $c => begin =%><%= $c =%><%= end =%>
+                    </li>
+            % }
+            </ul>
+        </div>
     </div>
     <div class="span10">
-        <div class="container">
             % if (stash 'key') {
             %= include 'top_tabs_single';
             % } else {
@@ -42,7 +42,7 @@ pre.toto_code {
                      <%= content =%>
             </div>
         </div>
-    </div>
+</div>
 
 </html>
 

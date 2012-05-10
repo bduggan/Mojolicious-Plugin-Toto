@@ -65,7 +65,11 @@ Defaults routes are generated for every combination of object + associated tab.
 Templates in the directory templates/<object>/<tab>.html.ep will be used when
 they exist.
 
-Styling is done with twitter's bootstrap <http://twitter.github.com/bootstrap>.
+The stash values "object" and "tab" are set for each auto-generated route.
+Also "noun" is set as an alias to "object".
+
+Styling is done with twitter's bootstrap <http://twitter.github.com/bootstrap>,
+and a version of bootstrap is included in this distribution.
 
 If a route should be outside of the toto framework, just set the layout, e.g.
 
@@ -107,6 +111,12 @@ sub _render_static {
     $c->render_static($what);
 }
 
+sub _cando {
+    my ($namespace,$controller,$action) = @_;
+    my $package = join '::', $namespace, b($controller)->camelize;
+    return $package->can($action) ? 1 : 0;
+}
+
 sub register {
     my ($self, $app, $conf) = @_;
 
@@ -124,15 +134,21 @@ sub register {
 
         my $first;
         for my $tab (@{ $menu{$object}{many} || []}) {
-            # TODO skip existing routes
             $first ||= $tab;
-            my @found = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
+            my @found_object_tab = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
+            my @found_tab = map { glob "$_/$tab.*" } @{ $app->renderer->paths };
+            my $found_controller = _cando($app->routes->namespace,$object,$tab);
             $app->log->debug("Adding route for $prefix/$object/$tab");
             $app->routes->get(
                 "$prefix/$object/$tab" => {
-                    template   => (@found ? "$object/$tab" : "plural"),
-                    object => $object,
-                    tab => $tab,
+                    template   => (0+@found_object_tab ? "$object/$tab" : 0+@found_tab ? $tab : "plural"),
+                    object     => $object,
+                    noun       => $object,
+                    tab        => $tab,
+                    ( !$found_controller ?  () : (
+                      controller => $object,
+                      action     => $tab,
+                    ))
                   } => "$object/$tab"
             );
         }
@@ -147,15 +163,22 @@ sub register {
         for my $tab (@{ $menu{$object}{one} || [] }) {
             # TODO skip existing routes
             $first ||= $tab;
-            my @found = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
+            my @found_object_tab = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
+            my @found_tab = map { glob "$_/$tab.*" } @{ $app->renderer->paths };
+            my $found_controller = _cando($app->routes->namespace,$object,$tab);
             $app->log->debug("Adding route for $prefix/$object/$tab/*key");
             $app->routes->get( "$prefix/$object/$tab/(*key)" => sub {
                     my $c = shift;
                     $c->stash(instance => $c->model_class->new(key => $c->stash('key')));
                   } => {
-                      template   => (@found ? "$object/$tab" : "single"),
-                      object => $object,
-                      tab     => $tab,
+                      template => (0+@found_object_tab ? "$object/$tab" : 0+@found_tab ? $tab : "plural"),
+                      object   => $object,
+                      noun     => $object,
+                      tab      => $tab,
+                      ( !$found_controller ?  () : (
+                          controller => $object,
+                          action     => $tab,
+                      ))
                   } => "$object/$tab"
             );
         }
