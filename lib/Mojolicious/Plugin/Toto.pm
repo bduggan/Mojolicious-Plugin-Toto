@@ -176,7 +176,7 @@ sub register {
             $app->log->debug("Adding route for $prefix/$object/$tab/*key");
             $app->log->debug("Found controller class for $object/$tab/key") if $found_controller;
             $app->log->debug("Found template for $object/$tab/key") if @found_template || @found_object_template;
-            $app->routes->under("$prefix/$object/$tab/(*key)"  =>
+            my $r = $app->routes->under("$prefix/$object/$tab/(*key)"  =>
                     sub {
                         my $c = shift;
                         $c->stash(object => $object);
@@ -197,8 +197,9 @@ sub register {
                         $c->stash( $object  => $instance );
                         1;
                       }
-                    )->any->to("$object#$tab") # TODO only if $found_controller, else use template.
-                     ->name("$object/$tab");
+                    )->any;
+              $r = $r->to("$object#$tab") if $found_controller;
+              $r->name("$object/$tab");
         }
         my $first_key = $first;
         $app->routes->get(
