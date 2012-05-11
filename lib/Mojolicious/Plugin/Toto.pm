@@ -230,7 +230,7 @@ sub register {
         $_->helper(
             tabs => sub {
                 my $c    = shift;
-                my $for  = shift || $c->current_object;
+                my $for  = shift || $c->current_object or return;
                 my $mode = defined( $c->stash("key") ) ? "one" : "many";
                 @{ $menu{$for}{$mode} || [] };
             }
