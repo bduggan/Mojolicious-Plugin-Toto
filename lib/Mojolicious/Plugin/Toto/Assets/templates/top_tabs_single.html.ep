@@ -1,5 +1,5 @@
 
-<h2><center><%= current_object %> <%= current_instance->key %></center></h2>
+<h2><center><%= ucfirst(printable(current_object)) %> :  <%= current_instance->key %></center></h2>
 <ul class="nav nav-tabs">
     <li style='height:25px;'>&nbsp;</li>
 % for my $a (tabs) {

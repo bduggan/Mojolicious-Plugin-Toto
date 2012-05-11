@@ -117,6 +117,12 @@ sub _cando {
     return $package->can($action) ? 1 : 0;
 }
 
+sub _to_noun {
+    my $word = shift;
+    $word =~ s/_/ /g;
+    $word;
+}
+
 sub register {
     my ($self, $app, $conf) = @_;
 
@@ -135,13 +141,15 @@ sub register {
         my $first;
         for my $tab (@{ $menu{$object}{many} || []}) {
             $first ||= $tab;
-            my @found_object_tab = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
-            my @found_tab = map { glob "$_/$tab.*" } @{ $app->renderer->paths };
+            my @found_object_template = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
+            my @found_template = map { glob "$_/$tab.*" } @{ $app->renderer->paths };
             my $found_controller = _cando($app->routes->namespace,$object,$tab);
             $app->log->debug("Adding route for $prefix/$object/$tab");
-            $app->routes->get(
+            $app->routes->any(
                 "$prefix/$object/$tab" => {
-                    template   => (0+@found_object_tab ? "$object/$tab" : 0+@found_tab ? $tab : "plural"),
+                    template => ( 0 + @found_object_template ? "$object/$tab"
+                        : 0 + @found_template ? $tab
+                        :                       "plural" ),
                     object     => $object,
                     noun       => $object,
                     tab        => $tab,
@@ -161,26 +169,36 @@ sub register {
         );
         $first = undef;
         for my $tab (@{ $menu{$object}{one} || [] }) {
-            # TODO skip existing routes
             $first ||= $tab;
-            my @found_object_tab = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
-            my @found_tab = map { glob "$_/$tab.*" } @{ $app->renderer->paths };
+            my @found_object_template = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
+            my @found_template = map { glob "$_/$tab.*" } @{ $app->renderer->paths };
             my $found_controller = _cando($app->routes->namespace,$object,$tab);
             $app->log->debug("Adding route for $prefix/$object/$tab/*key");
-            $app->routes->get( "$prefix/$object/$tab/(*key)" => sub {
-                    my $c = shift;
-                    $c->stash(instance => $c->model_class->new(key => $c->stash('key')));
-                  } => {
-                      template => (0+@found_object_tab ? "$object/$tab" : 0+@found_tab ? $tab : "plural"),
-                      object   => $object,
-                      noun     => $object,
-                      tab      => $tab,
-                      ( !$found_controller ?  () : (
-                          controller => $object,
-                          action     => $tab,
-                      ))
-                  } => "$object/$tab"
-            );
+            $app->log->debug("Found controller class for $object/$tab/key") if $found_controller;
+            $app->log->debug("Found template for $object/$tab/key") if @found_template || @found_object_template;
+            $app->routes->under("$prefix/$object/$tab/(*key)"  =>
+                    sub {
+                        my $c = shift;
+                        $c->stash(object => $object);
+                        $c->stash(noun => _to_noun($object));
+                        $c->stash(tab => $tab);
+                        my $key = lc $c->stash('key');
+                        my @found_instance_template = map { glob "$_/$object/$key/$tab.*" } @{ $app->renderer->paths };
+                        $c->stash(
+                            template => (
+                                  0 + @found_instance_template ? "$object/$key/$tab"
+                                : 0 + @found_object_template ? "$object/$tab"
+                                : 0 + @found_template        ? $tab
+                                : "single"
+                            )
+                        );
+                        my $instance = $c->current_instance;
+                        $c->stash( instance => $instance );
+                        $c->stash( $object  => $instance );
+                        1;
+                      }
+                    )->any->to("$object#$tab") # TODO only if $found_controller, else use template.
+                     ->name("$object/$tab");
         }
         my $first_key = $first;
         $app->routes->get(
@@ -199,7 +217,14 @@ sub register {
 
     for ($app) {
         $_->helper( toto_config => sub { $conf } );
-        $_->helper( model_class => sub { $conf->{model_class} || "Mojolicious::Plugin::Toto::Model" });
+        $_->helper( model_class => sub {
+                my $c = shift;
+                if (my $ns = $conf->{model_namespace}) {
+                    return join '::', $ns, b($c->current_object)->camelize;
+                }
+                $conf->{model_class} || "Mojolicious::Plugin::Toto::Model"
+             }
+         );
         $_->helper( objects => sub { @objects } );
         $_->helper(
             tabs => sub {
@@ -222,6 +247,11 @@ sub register {
                 my $key = $c->stash("key") || [ split '\/', $c->current_route ]->[2];
                 return $c->model_class->new(key => $key);
             } );
+        $_->helper( printable => sub {
+                my $c = shift;
+                my $what = shift;
+                $what =~ s/_/ /g;
+                $what } );
     }
 
     $self;

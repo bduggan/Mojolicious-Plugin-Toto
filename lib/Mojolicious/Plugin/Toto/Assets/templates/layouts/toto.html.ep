@@ -5,8 +5,11 @@
 <title><%= title %></title>
 %= base_tag
 %= javascript '/js/jquery.js';
-%= stylesheet '/bootstrap/css/bootstrap.min.css';
 %= javascript '/bootstrap/js/bootstrap.min.js';
+% if (my $css = stash 'css') {
+%= stylesheet $css;
+% }
+%= stylesheet '/bootstrap/css/bootstrap.min.css';
 <style>
 pre.toto_code {
     float:right;
@@ -18,31 +21,29 @@ pre.toto_code {
     }
 </style>
 </head>
-<body>
-<div class="row-fluid">
-    <div class="span2">
-        <div class="well" style="padding: 8px 0;">
-            <ul class="nav nav-list">
-                    <li style='width:100px;'>&nbsp;</li>
-            % for my $c (objects) {
-                    <li <%== $c eq current_object() ? q[ class="active"] : "" =%>>
-                        <%= link_to $c => begin =%><%= $c =%><%= end =%>
-                    </li>
-            % }
-            </ul>
+<body style='padding-top:40px;'>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <ul class="nav">
+
+                    % for my $c (objects) {
+                            <li <%== $c eq current_object() ? q[ class="active"] : "" =%>>
+                            <%= link_to $c => begin =%><%= printable($c) =%><%= end =%>
+                            </li>
+                    % }
+                    </ul>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="span10">
             % if (stash 'key') {
             %= include 'top_tabs_single';
             % } else {
             %= include 'top_tabs_plural';
             % }
-            <div class="tab-content" style='width:auto'>
+            <div class="tab-content">
                      <%= content =%>
             </div>
-        </div>
-</div>
 
 </html>
 
