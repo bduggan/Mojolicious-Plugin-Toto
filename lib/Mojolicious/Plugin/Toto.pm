@@ -113,7 +113,7 @@ sub _render_static {
 
 sub _cando {
     my ($namespace,$controller,$action) = @_;
-    my $package = join '::', $namespace, b($controller)->camelize;
+    my $package = join '::', ( $namespace || () ), b($controller)->camelize;
     return $package->can($action) ? 1 : 0;
 }
 
