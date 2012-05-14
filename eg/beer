@@ -23,6 +23,18 @@ plugin 'toto' =>
    ],
 ;
 
+#plugin 'toto' =>
+#    nav => [ qw(brewpub beer) ],
+#    sidenav => {
+#        brewpub => [
+#            qw(brewery/phonelist brewery/mailing_list pub/search pub/map brewery pub) ],
+#        beer => [ qw(beer/list beer/create beer/search beer/browse beer) ],
+#    },
+#    tabs => {
+#        brewery => [qw(view edit directions beers info) ],
+#        pub => [qw(view info comments hours)],
+#        beer => [qw(view edit pictures notes)],
+#    };
 
 app->start
 

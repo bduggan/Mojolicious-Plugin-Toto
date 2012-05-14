@@ -123,6 +123,72 @@ sub _to_noun {
     $word;
 }
 
+sub _from_menu {
+
+}
+
+sub _add_sidenav {
+    my $self = shift;
+    my $app = shift;
+    my ($prefix, $object, $tab) = @_;
+
+    my @found_object_template = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
+    my @found_template = map { glob "$_/$tab.*" } @{ $app->renderer->paths };
+    my $found_controller = _cando($app->routes->namespace,$object,$tab);
+    $app->log->debug("Adding route for $prefix/$object/$tab");
+    $app->routes->any(
+        "$prefix/$object/$tab" => {
+            template => ( 0 + @found_object_template ? "$object/$tab"
+                : 0 + @found_template ? $tab
+                :                       "plural" ),
+            object     => $object,
+            noun       => $object,
+            tab        => $tab,
+            ( !$found_controller ?  () : (
+              controller => $object,
+              action     => $tab,
+            ))
+          } => "$object/$tab"
+    );
+}
+
+sub _add_tab {
+    my $self = shift;
+    my $app = shift;
+    my ($prefix, $object, $tab) = @_;
+    my @found_object_template = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
+    my @found_template = map { glob "$_/$tab.*" } @{ $app->renderer->paths };
+    my $found_controller = _cando($app->routes->namespace,$object,$tab);
+    $app->log->debug("Adding route for $prefix/$object/$tab/*key");
+    $app->log->debug("Found controller class for $object/$tab/key") if $found_controller;
+    $app->log->debug("Found template for $object/$tab/key") if @found_template || @found_object_template;
+    my $r = $app->routes->under("$prefix/$object/$tab/(*key)"  =>
+            sub {
+                my $c = shift;
+                $c->stash(object => $object);
+                $c->stash(noun => _to_noun($object));
+                $c->stash(tab => $tab);
+                my $key = lc $c->stash('key');
+                my @found_instance_template = map { glob "$_/$object/$key/$tab.*" } @{ $app->renderer->paths };
+                $c->stash(
+                    template => (
+                          0 + @found_instance_template ? "$object/$key/$tab"
+                        : 0 + @found_object_template ? "$object/$tab"
+                        : 0 + @found_template        ? $tab
+                        : "single"
+                    )
+                );
+                my $instance = $c->current_instance;
+                $c->stash( instance => $instance );
+                $c->stash( $object  => $instance );
+                1;
+              }
+            )->any;
+      $r = $r->to("$object#$tab") if $found_controller;
+      $r->name("$object/$tab");
+}
+
+
 sub register {
     my ($self, $app, $conf) = @_;
 
@@ -137,28 +203,10 @@ sub register {
     $app->defaults(layout => "toto", toto_prefix => $prefix);
 
     for my $object (keys %menu) {
-
         my $first;
         for my $tab (@{ $menu{$object}{many} || []}) {
             $first ||= $tab;
-            my @found_object_template = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
-            my @found_template = map { glob "$_/$tab.*" } @{ $app->renderer->paths };
-            my $found_controller = _cando($app->routes->namespace,$object,$tab);
-            $app->log->debug("Adding route for $prefix/$object/$tab");
-            $app->routes->any(
-                "$prefix/$object/$tab" => {
-                    template => ( 0 + @found_object_template ? "$object/$tab"
-                        : 0 + @found_template ? $tab
-                        :                       "plural" ),
-                    object     => $object,
-                    noun       => $object,
-                    tab        => $tab,
-                    ( !$found_controller ?  () : (
-                      controller => $object,
-                      action     => $tab,
-                    ))
-                  } => "$object/$tab"
-            );
+            $self->_add_sidenav($app, $prefix, $object,$tab)
         }
         my $first_action = $first;
         $app->routes->get(
@@ -170,36 +218,7 @@ sub register {
         $first = undef;
         for my $tab (@{ $menu{$object}{one} || [] }) {
             $first ||= $tab;
-            my @found_object_template = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
-            my @found_template = map { glob "$_/$tab.*" } @{ $app->renderer->paths };
-            my $found_controller = _cando($app->routes->namespace,$object,$tab);
-            $app->log->debug("Adding route for $prefix/$object/$tab/*key");
-            $app->log->debug("Found controller class for $object/$tab/key") if $found_controller;
-            $app->log->debug("Found template for $object/$tab/key") if @found_template || @found_object_template;
-            my $r = $app->routes->under("$prefix/$object/$tab/(*key)"  =>
-                    sub {
-                        my $c = shift;
-                        $c->stash(object => $object);
-                        $c->stash(noun => _to_noun($object));
-                        $c->stash(tab => $tab);
-                        my $key = lc $c->stash('key');
-                        my @found_instance_template = map { glob "$_/$object/$key/$tab.*" } @{ $app->renderer->paths };
-                        $c->stash(
-                            template => (
-                                  0 + @found_instance_template ? "$object/$key/$tab"
-                                : 0 + @found_object_template ? "$object/$tab"
-                                : 0 + @found_template        ? $tab
-                                : "single"
-                            )
-                        );
-                        my $instance = $c->current_instance;
-                        $c->stash( instance => $instance );
-                        $c->stash( $object  => $instance );
-                        1;
-                      }
-                    )->any;
-              $r = $r->to("$object#$tab") if $found_controller;
-              $r->name("$object/$tab");
+            $self->_add_tab($app,$prefix,$object,$tab);
         }
         my $first_key = $first;
         $app->routes->get(
@@ -232,7 +251,6 @@ sub register {
                 my $c    = shift;
                 my $for  = shift || $c->current_object or return;
                 my $mode = shift || (defined( $c->stash("key") ) ? "one" : "many");
-                warn $mode;
                 @{ $menu{$for}{$mode} || [] };
             }
         );
@@ -260,51 +278,3 @@ sub register {
 }
 
 1;
-
-__DATA__
-
-@@ layouts/toto.html.ep
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
-<html>
-<head>
-<title><%= title %></title>
-%= base_tag
-%= stylesheet "bootstrap/css/bootstrap.min.css";
-<style>
-pre.toto_code {
-    float:right;
-    right:10%;
-    padding:5px;
-    border:1px grey dashed;
-    font-family:monospace;
-    position:absolute;
-    }
-</style>
-</head>
-<body>
-<div class="container">
-<div class="row">
-<div class="span1">&nbsp;</div>
-<div class="span11">
-    <ul class="nav nav-tabs">
-% for my $c (objects) {
-        <li <%== $c eq $object ? q[ class="active"] : "" =%>>
-            <%= link_to "$toto_prefix/$c" => begin =%><%= $c =%><%= end =%>
-        </li>
-% }
-    </ul>
-</div>
-</div>
-    <div class="tabbable tabs-left">
-% if (stash 'key') {
-%= include 'top_tabs_single';
-% } else {
-%= include 'top_tabs_plural';
-% }
-         <div class="tab-content" style='width:auto;'>
-         <%= content =%>
-         </div>
-    </div>
-</div>
-</html>
-
