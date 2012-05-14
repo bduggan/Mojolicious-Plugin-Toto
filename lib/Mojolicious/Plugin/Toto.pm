@@ -231,7 +231,8 @@ sub register {
             tabs => sub {
                 my $c    = shift;
                 my $for  = shift || $c->current_object or return;
-                my $mode = defined( $c->stash("key") ) ? "one" : "many";
+                my $mode = shift || (defined( $c->stash("key") ) ? "one" : "many");
+                warn $mode;
                 @{ $menu{$for}{$mode} || [] };
             }
         );

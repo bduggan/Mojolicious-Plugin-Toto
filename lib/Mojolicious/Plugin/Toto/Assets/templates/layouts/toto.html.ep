@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- http://twitter.github.com/bootstrap/examples/fluid.html -->
 <title><%= title %></title>
 %= base_tag
 %= javascript '/js/jquery.js';
@@ -19,6 +20,9 @@ pre.toto_code {
     font-family:monospace;
     position:absolute;
     }
+    .sidebar-nav {
+        padding: 9px 0;
+    }
 </style>
 </head>
 <body style='padding-top:40px;'>
@@ -26,24 +30,34 @@ pre.toto_code {
             <div class="navbar-inner">
                 <div class="container-fluid">
                     <ul class="nav">
-
                     % for my $c (objects) {
                             <li <%== $c eq current_object() ? q[ class="active"] : "" =%>>
                             <%= link_to $c => begin =%><%= printable($c) =%><%= end =%>
                             </li>
                     % }
                     </ul>
+                  % if (stash 'brand') {
+                        <%= stash 'brand' %>
+                  % }
                 </div>
             </div>
         </div>
-            % if (stash 'key') {
-            %= include 'top_tabs_single';
-            % } else {
-            %= include 'top_tabs_plural';
-            % }
-            <div class="tab-content">
-                     <%= content =%>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span2">
+                    <div class="well sidebar-nav">
+                    %= include 'top_tabs_plural';
+                    </div>
+                </div>
+                <div class="span10">
+                    % if (stash 'key') {
+                    %= include 'top_tabs_single';
+                    % }
+                    <div class="container-fluid">
+                             <%= content =%>
+                    </div>
+                </div>
             </div>
-
+        </div>
 </html>
 

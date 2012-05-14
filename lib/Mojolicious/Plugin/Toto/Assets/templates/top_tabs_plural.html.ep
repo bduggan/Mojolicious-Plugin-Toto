@@ -1,12 +1,19 @@
-<ul class="nav nav-tabs">
-    <li style='height:25px;'>&nbsp;</li>
-% for my $a (tabs) {
+<ul class="nav nav-list">
+
+    <li class="nav-header">
+        <%= current_object %>s
+    </li>
+% for my $a (tabs(current_object,"many")) {
     <li <%== $a eq current_tab() ? q[ class="active"] : '' %>>
         <%= link_to "$toto_prefix/".current_object."/$a" => begin =%>
             <%= $a =%>
         <%= end =%>
     </li>
 % }
-    <li style='height:25px;'>&nbsp;</li>
+    <li <%== (stash 'key') ? q[class="active"] : "" %>>
+    <a <%== !(stash 'key') ? q[style='color:grey;'] : "" %> href="javascript:void(0)">selected <%= current_object %></a>
+    </li>
+
 </ul>
+
 
