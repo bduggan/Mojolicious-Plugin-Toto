@@ -85,9 +85,17 @@ Document these helpers, which are added automatically :
 
 toto_config, model_class, objects, current_object, current_tab, current_instance
 
+=head1 NOTES
+
+This module is experimental.  The api may change without notice.  Feedback welcome!
+
+=head1 AUTHOR
+
+Brian Duggan C<bduggan@matatu.org>
 
 =head1 SEE ALSO
 
+http://twitter.github.com/bootstrap/examples/fluid.html
 http://www.beer.dotcloud.com
 
 =cut
