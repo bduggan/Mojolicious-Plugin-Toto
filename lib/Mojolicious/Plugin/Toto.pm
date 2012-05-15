@@ -14,21 +14,36 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
     shift->render_text("Here is a page to create a beer.");
  } => "beer/create";
 
- get '/pub/view' => { controller => 'Pub', action => 'view' } => 'pub/view';
+ get '/pub/view' => { controller => 'Pub', action => 'view'
+ } => 'pub/view';
 
  plugin 'toto' =>
-    menu => [
-        beer    => { one  => [qw/view edit pictures notes/],
-                     many => [qw/list create search browse/] },
-        brewery => { one  => [qw/view edit directions beers info/],
-                     many => [qw/phonelist mailing_list/] },
-        pub     => { one  => [qw/view info comments hours/],
-                     many => [qw/search map/] },
-
-      # object  => { one => ....tabs....
-      #             many => ...more tabs...
-
-    ],
+      nav => [
+          'brewpub',          # Refers to a sidenav entry below
+          'beverage'          # Refers to a sidenav entry below
+      ],
+      sidenav => {
+        brewpub => [
+            'brewery/phonelist',
+            'brewery/mailing_list',
+            'pub/search',
+            'pub/map',
+            'brewery',        # Refers to a "tab" entry below
+            'pub',            # Refers to a "tab" entry below
+        ],
+        beverage =>
+          [ 'beer/list',      # This will use the route defined above named "beer/list"
+            'beer/create',
+            'beer/search',
+            'beer/browse',    # This will use the controller at the top (Beer::browse)
+            'beer'            # Refers to a "tab" entry below
+           ],
+      },
+      tabs => {
+        brewery => [ 'view', 'edit', 'directions', 'beers', 'info' ],
+        pub     => [ 'view', 'info', 'comments', 'hours' ],
+        beer    => [ 'view', 'edit', 'pictures', 'notes' ],
+      };
  ;
 
  app->start
@@ -40,18 +55,24 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
 This plugin provides a navigational structure and a default set
 of routes for a Mojolicious or Mojolicious::Lite app.
 
-It extends the idea of BREAD or CRUD -- in a BREAD application,
-browse and add are operations on zero or many objects, while
-edit, add, and delete are operations on one object.
+The navigational structure is a slight variation of this
+example used by twitter's bootstrap :
 
-Toto groups all pages into these two categories : either they act on
-zero or many objects, or they act on one object.
+    http://twitter.github.com/bootstrap/examples/fluid.html
 
-One set of tabs provides a way to change between types of objects.
-Another set of tabs is specific to the type of object selected.
+In addition to a sidebar and a nav bar, there is a also
+a row of tabs which may correspond to an object which has
+been selected.
 
-The second set of tabs varies depending on whether or not
-an object (instance) has been selected.
+The latter idea is an extension of BREAD or CRUD -- in a BREAD
+application, browse and add are operations on zero or many objects,
+while edit, add, and delete are operations on one object.  In
+the toto structure, these two types of operations are distinguished
+by placing the former in the side nav bar, and the latter in
+a row of tabs underneath the object to which the action applies. 
+
+Additionally, a top nav bar contains items which are each associated
+with a different side nav bar.
 
 =head1 HOW DOES IT WORK
 
@@ -71,19 +92,13 @@ Also "noun" is set as an alias to "object".
 Styling is done with twitter's bootstrap <http://twitter.github.com/bootstrap>,
 and a version of bootstrap is included in this distribution.
 
-If a route should be outside of the toto framework, just set the layout, e.g.
+To create pages outside of the toto framework, just set the layout to
+something other than "toto', e.g.
 
     get '/no/toto' => { layout => 'default' } => ...
 
-To route to another controller
+=head1 EXAMPLE
 
-    get '/some/route' => { controller => "Foo", action => "bar" } ...
-
-=head1 TODO
-
-Document these helpers, which are added automatically :
-
-toto_config, model_class, objects, current_object, current_tab, current_instance
 
 =head1 NOTES
 
