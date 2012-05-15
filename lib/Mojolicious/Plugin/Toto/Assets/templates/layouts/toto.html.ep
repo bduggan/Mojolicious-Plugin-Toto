@@ -46,12 +46,12 @@ pre.toto_code {
             <div class="row-fluid">
                 <div class="span2">
                     <div class="well sidebar-nav">
-                    %= include 'top_tabs_plural';
+                    %= include 'toto/side_bar';
                     </div>
                 </div>
                 <div class="span10">
                     % if (stash 'key') {
-                    %= include 'top_tabs_single';
+                    %= include 'toto/tabs';
                     % }
                     <div class="container-fluid">
                              <%= content =%>
