@@ -30,11 +30,9 @@ pre.toto_code {
             <div class="navbar-inner">
                 <div class="container-fluid">
                     <ul class="nav">
-                    % for my $c (objects) {
-                            <li <%== $c eq current_object() ? q[ class="active"] : "" =%>>
-                            <%= link_to $c => begin =%><%= printable($c) =%><%= end =%>
-                            </li>
-                    % }
+                        % for my $c (@{ toto_config->{nav} }) {
+                            <li><%= link_to $c => begin =%><%= printable($c) =%><%= end =%></li>
+                        % }
                     </ul>
                   % if (stash 'brand') {
                         <%= stash 'brand' %>

@@ -123,39 +123,33 @@ sub _to_noun {
     $word;
 }
 
-sub _from_menu {
-
-}
-
 sub _add_sidenav {
     my $self = shift;
     my $app = shift;
-    my ($prefix, $object, $tab) = @_;
+    my ($prefix, $nav_item, $object, $tab) = @_;
+    die "no tab for $object" unless $tab;
+    die "no nav item" unless $nav_item;
 
-    my @found_object_template = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
-    my @found_template = map { glob "$_/$tab.*" } @{ $app->renderer->paths };
+    my @found_template = map { glob "$_/$object.*" } @{ $app->renderer->paths };
     my $found_controller = _cando($app->routes->namespace,$object,$tab);
-    $app->log->debug("Adding route for $prefix/$object/$tab");
-    $app->routes->any(
-        "$prefix/$object/$tab" => {
-            template => ( 0 + @found_object_template ? "$object/$tab"
-                : 0 + @found_template ? $tab
-                :                       "plural" ),
-            object     => $object,
-            noun       => $object,
-            tab        => $tab,
-            ( !$found_controller ?  () : (
-              controller => $object,
-              action     => $tab,
-            ))
-          } => "$object/$tab"
-    );
+    $app->log->debug("Adding sidenav route for $prefix/$object/$tab ($nav_item)");
+    my $r = $app->routes->under(
+        "$prefix/$object/$tab" => sub {
+            my $c = shift;
+            $c->stash(template => ( @found_template ? $tab : "plural" ));
+            $c->stash(object     => $object);
+            $c->stash(noun       => $object);
+            $c->stash(tab        => $tab);
+            $c->stash(nav_item   => $nav_item);
+          })->any;
+    $r = $r->to("$object#$tab") if $found_controller;
+    $r->name("$object/$tab");
 }
 
 sub _add_tab {
     my $self = shift;
     my $app = shift;
-    my ($prefix, $object, $tab) = @_;
+    my ($prefix, $nav_item, $object, $tab) = @_;
     my @found_object_template = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
     my @found_template = map { glob "$_/$tab.*" } @{ $app->renderer->paths };
     my $found_controller = _cando($app->routes->namespace,$object,$tab);
@@ -180,6 +174,7 @@ sub _add_tab {
                 );
                 my $instance = $c->current_instance;
                 $c->stash( instance => $instance );
+                $c->stash( nav_item => $nav_item );
                 $c->stash( $object  => $instance );
                 1;
               }
@@ -188,13 +183,18 @@ sub _add_tab {
       $r->name("$object/$tab");
 }
 
+sub _from_menu {
+    die "TODO";
+    # return $nav, $sidenav, $tabs
+}
 
 sub register {
     my ($self, $app, $conf) = @_;
+    $app->log->debug("registering plugin");
 
-    my @menu = @{ $conf->{menu} || [] };
+    my ($nav,$sidenav,$tabs) = @$conf{qw/nav sidenav tabs/};
+
     my $prefix = $conf->{prefix} || '';
-    my %menu = @menu;
 
     my $base = catdir(abs_path(dirname(__FILE__)), qw/Toto Assets/);
     my $default_path = catdir($base,'templates');
@@ -202,37 +202,41 @@ sub register {
     push @{$app->static->paths},   catdir($base, 'public');
     $app->defaults(layout => "toto", toto_prefix => $prefix);
 
-    for my $object (keys %menu) {
+    $app->log->debug("Adding routes");
+    die "no nav routes" unless $conf->{nav};
+    for my $nav_item ( @{ $conf->{nav} } ) {
+        $app->log->debug("Adding routes for $nav_item");
         my $first;
-        for my $tab (@{ $menu{$object}{many} || []}) {
-            $first ||= $tab;
-            $self->_add_sidenav($app, $prefix, $object,$tab)
+        die "no sidenav for $nav_item" unless $conf->{sidenav}{$nav_item};
+        for my $subnav_item ( @{ $conf->{sidenav}{$nav_item} } ) {
+            $app->log->debug("routes for $subnav_item");
+            my ( $object, $action ) = split '/', $subnav_item;
+            if ($action) {
+                $first ||= $subnav_item;
+                $self->_add_sidenav($app,$prefix,$nav_item,$object,$action);
+            } else {
+                my $first_tab;
+                die "no tabs for $subnav_item" unless $conf->{tabs}{$subnav_item};
+                for my $tab (@{ $conf->{tabs}{$subnav_item} }) {
+                    $first_tab ||= $tab;
+                    $self->_add_tab($app,$prefix,$nav_item,$object,$tab);
+                }
+                $app->log->debug("Will redirect $prefix/$object/default/key to $object/$first_tab/\$key");
+                $app->routes->get("$prefix/$object/default/*key" => sub {
+                    my $c = shift;
+                    my $key = $c->stash("key");
+                    $c->redirect_to("$object/$first_tab/$key");
+                    } => "$object/default ");
+            }
         }
-        my $first_action = $first;
         $app->routes->get(
-            "$prefix/$object" => sub {
+            $nav_item => sub {
                 my $c = shift;
-                $c->redirect_to("$prefix/$object/$first_action");
-              } => "$object"
-        );
-        $first = undef;
-        for my $tab (@{ $menu{$object}{one} || [] }) {
-            $first ||= $tab;
-            $self->_add_tab($app,$prefix,$object,$tab);
-        }
-        my $first_key = $first;
-        $app->routes->get(
-            "$prefix/$object/default/(*key)" => sub {
-                my $c = shift;
-                my $key = $c->stash("key");
-                $c->redirect_to("$object/$first_key/$key");
-              } => "$object/default"
-        );
-
+                $c->redirect_to($first);
+            } => $nav_item );
     }
-    my @objects = grep !ref($_), @menu;
-    die "no objects" unless @objects;
-    my $first_object = $objects[0];
+
+    my $first_object = $conf->{nav}[0];
     $app->routes->get("$prefix/" => sub { shift->redirect_to($first_object) } );
 
     for ($app) {
@@ -245,13 +249,11 @@ sub register {
                 $conf->{model_class} || "Mojolicious::Plugin::Toto::Model"
              }
          );
-        $_->helper( objects => sub { @objects } );
         $_->helper(
             tabs => sub {
                 my $c    = shift;
                 my $for  = shift || $c->current_object or return;
-                my $mode = shift || (defined( $c->stash("key") ) ? "one" : "many");
-                @{ $menu{$for}{$mode} || [] };
+                @{ $conf->{tabs}{$for} || [] };
             }
         );
         $_->helper( current_object => sub {

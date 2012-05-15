@@ -10,31 +10,31 @@ package main;
 use Mojolicious::Lite;
 use lib './lib';
 
-get '/beer/list' => { controller => "Foo", action => 'bar' } => 'beer/list';
-
-plugin 'toto' =>
-   menu => [
-       beer    => { one  => [qw/view edit pictures notes/],
-                    many => [qw/list create search browse/] },
-       brewery => { one  => [qw/view edit directions beers info/],
-                    many => [qw/phonelist mailing_list/] },
-       pub     => { one  => [qw/view info comments hours/],
-                    many => [qw/search map/] },
-   ],
-;
+get '/beer/list' => { controller => "Foo", action => 'bar', nav_item => 'beerie' } => 'beer/list';
 
 #plugin 'toto' =>
-#    nav => [ qw(brewpub beer) ],
-#    sidenav => {
-#        brewpub => [
-#            qw(brewery/phonelist brewery/mailing_list pub/search pub/map brewery pub) ],
-#        beer => [ qw(beer/list beer/create beer/search beer/browse beer) ],
-#    },
-#    tabs => {
-#        brewery => [qw(view edit directions beers info) ],
-#        pub => [qw(view info comments hours)],
-#        beer => [qw(view edit pictures notes)],
-#    };
+#   menu => [
+#       beer    => { one  => [qw/view edit pictures notes/],
+#                    many => [qw/list create search browse/] },
+#       brewery => { one  => [qw/view edit directions beers info/],
+#                    many => [qw/phonelist mailing_list/] },
+#       pub     => { one  => [qw/view info comments hours/],
+#                    many => [qw/search map/] },
+#   ],
+#;
+
+plugin 'toto' =>
+    nav => [ qw(brewpub beerie) ],
+    sidenav => {
+        brewpub => [
+            qw(brewery/phonelist brewery/mailing_list pub/search pub/map brewery pub) ],
+        beerie => [ qw(beer/list beer/create beer/search beer/browse beer) ],
+    },
+    tabs => {
+        brewery => [qw(view edit directions beers info) ],
+        pub => [qw(view info comments hours)],
+        beer => [qw(view edit pictures notes)],
+    };
 
 app->start
 
