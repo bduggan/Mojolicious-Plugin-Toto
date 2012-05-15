@@ -226,12 +226,15 @@ sub register {
     $app->defaults(layout => "toto", toto_prefix => $prefix);
 
     $app->log->debug("Adding routes");
-    die "no nav routes" unless $conf->{nav};
-    for my $nav_item ( @{ $conf->{nav} } ) {
+
+    my %tab_done;
+
+    die "toto plugin needs a 'nav' entry, please read the pod for more information" unless $nav;
+    for my $nav_item ( @$nav ) {
         $app->log->debug("Adding routes for $nav_item");
         my $first;
-        die "no sidenav for $nav_item" unless $conf->{sidenav}{$nav_item};
-        for my $subnav_item ( @{ $conf->{sidenav}{$nav_item} } ) {
+        my $items = $sidenav->{$nav_item} or die "no sidenav for $nav_item";
+        for my $subnav_item ( @$items ) {
             $app->log->debug("routes for $subnav_item");
             my ( $object, $action ) = split '/', $subnav_item;
             if ($action) {
@@ -239,8 +242,9 @@ sub register {
                 $self->_add_sidenav($app,$prefix,$nav_item,$object,$action);
             } else {
                 my $first_tab;
-                die "no tabs for $subnav_item" unless $conf->{tabs}{$subnav_item};
-                for my $tab (@{ $conf->{tabs}{$subnav_item} }) {
+                my $tabs = $tabs->{$subnav_item} or die "no tabs for $subnav_item";
+                die "tab row for '$subnav_item' appears more than once" if $tab_done{$subnav_item}++;
+                for my $tab (@$tabs) {
                     $first_tab ||= $tab;
                     $self->_add_tab($app,$prefix,$nav_item,$object,$tab);
                 }
@@ -252,6 +256,7 @@ sub register {
                     } => "$object/default ");
             }
         }
+        die "Could not find first route for nav item '$nav_item' : all entries have tabs\n" unless $first;
         $app->routes->get(
             $nav_item => sub {
                 my $c = shift;

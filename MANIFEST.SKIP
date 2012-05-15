@@ -50,3 +50,5 @@
 \bMojolicious-Plugin-Toto-[\d\.\_]+
 ^MYMETA.yml$
 \blog$
+\.swp$
+
