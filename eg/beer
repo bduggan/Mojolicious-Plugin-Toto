@@ -1,4 +1,11 @@
 #!/usr/bin/env perl
+ 
+package Beer;
+use Mojo::Base 'Mojolicious::Controller';
+
+sub browse {
+    shift->render_text("this is a page to browse beer");
+}
 
 package Foo;
 use Mojo::Base 'Mojolicious::Controller';
@@ -14,8 +21,8 @@ get '/beer/list' => { controller => "Foo", action => 'bar', nav_item => 'beverag
 
 plugin 'toto' =>
   nav => [
-      'brewpub', # Refers to a sidenav entry below
-      'beverage' # Refers to a sidenav entry below
+      'brewpub',          # Refers to a sidenav entry below
+      'beverage'          # Refers to a sidenav entry below
   ],
   sidenav => {
     brewpub => [
@@ -23,15 +30,15 @@ plugin 'toto' =>
         'brewery/mailing_list',
         'pub/search',
         'pub/map',
-        'brewery', # Refers to a "tab" entry below
-        'pub',     # Refers to a "tab" entry below
+        'brewery',        # Refers to a "tab" entry below
+        'pub',            # Refers to a "tab" entry below
     ],
     beverage =>
-      [ 'beer/list',
+      [ 'beer/list',      # This will use the route defined above named "beer/list"
         'beer/create',
         'beer/search',
-        'beer/browse',
-        'beer'     # Refers to a "tab" entry below
+        'beer/browse',    # This will use the controller at the top (Beer::browse)
+        'beer'            # Refers to a "tab" entry below
        ],
   },
   tabs => {
@@ -40,5 +47,7 @@ plugin 'toto' =>
     beer    => [ 'view', 'edit', 'pictures', 'notes' ],
   };
 
-app->start
+app->start;
+
+
 
