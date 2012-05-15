@@ -46,7 +46,7 @@ pre.toto_code {
             <div class="row-fluid">
                 <div class="span2">
                     <div class="well sidebar-nav">
-                    %= include 'toto/side_bar';
+                    %= include 'toto/sidebar';
                     </div>
                 </div>
                 <div class="span10">
