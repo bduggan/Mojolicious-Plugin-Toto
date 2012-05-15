@@ -12,17 +12,6 @@ use lib './lib';
 
 get '/beer/list' => { controller => "Foo", action => 'bar', nav_item => 'beverage' } => 'beer/list';
 
-#plugin 'toto' =>
-#   menu => [
-#       beer    => { one  => [qw/view edit pictures notes/],
-#                    many => [qw/list create search browse/] },
-#       brewery => { one  => [qw/view edit directions beers info/],
-#                    many => [qw/phonelist mailing_list/] },
-#       pub     => { one  => [qw/view info comments hours/],
-#                    many => [qw/search map/] },
-#   ],
-#;
-
 plugin 'toto' =>
   nav => [
       'brewpub', # Refers to a sidenav entry below
@@ -30,8 +19,10 @@ plugin 'toto' =>
   ],
   sidenav => {
     brewpub => [
-        'brewery/phonelist', 'brewery/mailing_list',
-        'pub/search',        'pub/map',
+        'brewery/phonelist',
+        'brewery/mailing_list',
+        'pub/search',
+        'pub/map',
         'brewery', # Refers to a "tab" entry below
         'pub',     # Refers to a "tab" entry below
     ],
