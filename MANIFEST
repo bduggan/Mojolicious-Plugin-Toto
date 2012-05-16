@@ -1,8 +1,10 @@
 Build.PL
 Changes
-eg/beer
-eg/little
-eg/random
+eg/beer.pl
+eg/beer_menu.pl
+eg/custom.pl
+eg/litte.pl
+eg/random.pl
 ignore.txt
 lib/Mojolicious/Plugin/Toto.pm
 lib/Mojolicious/Plugin/Toto/Assets/public/bootstrap/css/bootstrap-responsive.css
