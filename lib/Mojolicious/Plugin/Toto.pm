@@ -4,84 +4,38 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
 
 =head1 SYNOPSIS
 
- use Mojolicious::Lite;
-
- get '/my/url/to/list/beers' => sub {
-      shift->render_text("Here is a page for listing beers.");
- } => "beer/list";
-
- get '/beer/create' => sub {
-    shift->render_text("Here is a page to create a beer.");
- } => "beer/create";
-
- get '/pub/view' => { controller => 'Pub', action => 'view'
- } => 'pub/view';
-
- plugin 'toto' =>
-      nav => [
-          'brewpub',          # Refers to a sidebar entry below
-          'beverage'          # Refers to a sidebar entry below
-      ],
-      sidebar => {
-        brewpub => [
-            'brewery/phonelist',
-            'brewery/mailing_list',
-            'pub/search',
-            'pub/map',
-            'brewery',        # Refers to a "tab" entry below
-            'pub',            # Refers to a "tab" entry below
-        ],
-        beverage =>
-          [ 'beer/list',      # This will use the route defined above named "beer/list"
-            'beer/create',
-            'beer/search',
-            'beer/browse',    # This will use the controller at the top (Beer::browse)
-            'beer'            # Refers to a "tab" entry below
-           ],
-      },
-      tabs => {
-        brewery => [ 'view', 'edit', 'directions', 'beers', 'info' ],
-        pub     => [ 'view', 'info', 'comments', 'hours' ],
-        beer    => [ 'view', 'edit', 'pictures', 'notes' ],
-      };
- ;
-
- app->start
-
  ./Beer daemon
 
 =head1 DESCRIPTION
 
 This plugin provides a navigational structure and a default set
-of routes for a Mojolicious or Mojolicious::Lite app.
+of routes for a Mojolicious or Mojolicious::Lite app
 
 The navigational structure is a slight variation of this
 example used by twitter's bootstrap :
 
     http://twitter.github.com/bootstrap/examples/fluid.html
 
-In addition to a sidebar and a nav bar, there is a also
-a row of tabs which may correspond to an object which has
-been selected.
+The plugin provides a sidebar,  a nav bar, and also a
+row of tabs underneath the name of an object.
 
-The latter idea is an extension of BREAD or CRUD -- in a BREAD
+The row of tabs is an extension of BREAD or CRUD -- in a BREAD
 application, browse and add are operations on zero or many objects,
 while edit, add, and delete are operations on one object.  In
 the toto structure, these two types of operations are distinguished
 by placing the former in the side nav bar, and the latter in
 a row of tabs underneath the object to which the action applies. 
 
-Additionally, a top nav bar contains items which are each associated
-with a different side nav bar.
+Additionally, a top nav bar contains menu items to take the user
+to a particular side bar.
 
 =head1 HOW DOES IT WORK
 
 After loading the toto plugin, the default layout is set to 'toto'.
-The name of the each route is expected to be of the form <object>/<tab>.
-where <object> refers to an object in the menu structure, and <tab>
-is a tab for that object.
 
 Defaults routes are generated for every combination of object + associated tab.
+
+The names of the routes are of the form "controller/action".
 
 Templates in the directory templates/<object>/<tab>.html.ep will be used when
 they exist.
@@ -89,20 +43,96 @@ they exist.
 The stash values "object" and "tab" are set for each auto-generated route.
 Also "noun" is set as an alias to "object".
 
-Styling is done with twitter's bootstrap <http://twitter.github.com/bootstrap>,
-and a version of bootstrap is included in this distribution.
+A version of twitter's bootstrap (<http://twitter.github.com/bootstrap>) is
+included in this distribution.
+
+=head1 EXAMPLE
+
+=head2 Simple structure
+
+The "menu" format can be used to automatically generate
+the nav bar and side bar using the various types of objects.
+
+    #!/usr/bin/env perl
+
+    use Mojolicious::Lite;
+
+    plugin 'toto' =>
+         menu => [
+            beer => {
+                many => [qw/search browse/],
+                one  => [qw/picture ingredients pubs/],
+            },
+            pub => {
+                many => [qw/map list search/],
+                one  => [qw/info comments/],
+            }
+        ];
+
+    app->start;
+
+=head2 Complex structure
+
+The "nav/sidebar/tabs" format can be used
+for a more versatile structure, in which the
+nav bar and side bar are less constrained.
+
+     use Mojolicious::Lite;
+
+     get '/my/url/to/list/beers' => sub {
+          shift->render_text("Here is a page for listing beers.");
+     } => "beer/list";
+
+     get '/beer/create' => sub {
+        shift->render_text("Here is a page to create a beer.");
+     } => "beer/create";
+
+     plugin 'toto' =>
+
+          # top nav bar items
+          nav => [
+              'brewpub',          # Refers to a sidebar entry below
+              'beverage'          # Refers to a sidebar entry below
+          ],
+
+          # possible sidebars, keyed on nav entries
+          sidebar => {
+            brewpub => [
+                'brewery/phonelist',
+                'brewery/mailing_list',
+                'pub/search',
+                'pub/map',
+                'brewery',        # Refers to a "tab" entry below
+                'pub',            # Refers to a "tab" entry below
+            ],
+            beverage =>
+              [ 'beer/list',      # This will use the route defined above named "beer/list"
+                'beer/create',
+                'beer/search',
+                'beer/browse',    # This will use the controller at the top (Beer::browse)
+                'beer'            # Refers to a "tab" entry below
+               ],
+          },
+
+          # possible rows of tabs, keyed on sidebar entries without a /
+          tabs => {
+            brewery => [ 'view', 'edit', 'directions', 'beers', 'info' ],
+            pub     => [ 'view', 'info', 'comments', 'hours' ],
+            beer    => [ 'view', 'edit', 'pictures', 'notes' ],
+          };
+     ;
+
+     app->start;
+
+
+=head1 NOTES
 
 To create pages outside of the toto framework, just set the layout to
 something other than "toto', e.g.
 
     get '/no/toto' => { layout => 'default' } => ...
 
-=head1 EXAMPLE
-
-
-=head1 NOTES
-
-This module is experimental.  The api may change without notice.  Feedback welcome!
+This module is experimental.  The API may change without notice.  Feedback is welcome!
 
 =head1 AUTHOR
 
