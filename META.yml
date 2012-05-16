@@ -24,4 +24,4 @@ requires:
   Mojolicious: 2.92
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.11
+version: 0.12
