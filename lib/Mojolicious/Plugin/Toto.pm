@@ -19,10 +19,10 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
 
  plugin 'toto' =>
       nav => [
-          'brewpub',          # Refers to a sidenav entry below
-          'beverage'          # Refers to a sidenav entry below
+          'brewpub',          # Refers to a sidebar entry below
+          'beverage'          # Refers to a sidebar entry below
       ],
-      sidenav => {
+      sidebar => {
         brewpub => [
             'brewery/phonelist',
             'brewery/mailing_list',
@@ -146,7 +146,7 @@ sub _to_noun {
     $word;
 }
 
-sub _add_sidenav {
+sub _add_sidebar {
     my $self = shift;
     my $app = shift;
     my ($prefix, $nav_item, $object, $tab) = @_;
@@ -155,7 +155,7 @@ sub _add_sidenav {
 
     my @found_template = map { glob "$_/$object.*" } @{ $app->renderer->paths };
     my $found_controller = _cando($app->routes->namespace,$object,$tab);
-    $app->log->debug("Adding sidenav route for $prefix/$object/$tab ($nav_item)");
+    $app->log->debug("Adding sidebar route for $prefix/$object/$tab ($nav_item)");
     my $r = $app->routes->under(
         "$prefix/$object/$tab" => sub {
             my $c = shift;
@@ -206,16 +206,43 @@ sub _add_tab {
       $r->name("$object/$tab");
 }
 
-sub _from_menu {
-    die "TODO";
-    # return $nav, $sidenav, $tabs
+sub _menu_to_nav {
+    my $self = shift;
+    my ($conf,$menu) = @_;
+    my $nav;
+    my $sidebar;
+    my $tabs;
+    my $object;
+    for (@$menu) {
+        unless (ref $_) {
+            $object = $_;
+            push @$nav, $object;
+            next;
+        }
+        for my $action (@{ $_->{many} || [] }) {
+            push @{$sidebar->{$object}}, "$object/$action";
+        }
+        push @{$sidebar->{$object}}, $object;
+        for my $action (@{ $_->{one} || [] }) {
+            push @{$tabs->{$object}}, $action;
+        }
+    }
+    $conf->{nav} = $nav;
+    $conf->{sidebar} = $sidebar;
+    $conf->{tabs} = $tabs;
 }
 
 sub register {
     my ($self, $app, $conf) = @_;
     $app->log->debug("registering plugin");
 
-    my ($nav,$sidenav,$tabs) = @$conf{qw/nav sidenav tabs/};
+    if (my $menu = $conf->{menu}) {
+        $self->_menu_to_nav($conf,$menu);
+    }
+    for (qw/nav sidebar tabs/) {
+        die "missing $_" unless $conf->{$_};
+    }
+    my ($nav,$sidebar,$tabs) = @$conf{qw/nav sidebar tabs/};
 
     my $prefix = $conf->{prefix} || '';
 
@@ -233,13 +260,13 @@ sub register {
     for my $nav_item ( @$nav ) {
         $app->log->debug("Adding routes for $nav_item");
         my $first;
-        my $items = $sidenav->{$nav_item} or die "no sidenav for $nav_item";
+        my $items = $sidebar->{$nav_item} or die "no sidebar for $nav_item";
         for my $subnav_item ( @$items ) {
             $app->log->debug("routes for $subnav_item");
             my ( $object, $action ) = split '/', $subnav_item;
             if ($action) {
                 $first ||= $subnav_item;
-                $self->_add_sidenav($app,$prefix,$nav_item,$object,$action);
+                $self->_add_sidebar($app,$prefix,$nav_item,$object,$action);
             } else {
                 my $first_tab;
                 my $tabs = $tabs->{$subnav_item} or die "no tabs for $subnav_item";
