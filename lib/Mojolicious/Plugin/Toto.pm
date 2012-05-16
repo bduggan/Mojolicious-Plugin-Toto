@@ -358,7 +358,7 @@ sub register {
                     my $c = shift;
                     my $key = $c->stash("key");
                     $c->redirect_to("$object/$first_tab/$key");
-                    } => "$object/default ");
+                    } => "$object/default");
             }
         }
         die "Could not find first route for nav item '$nav_item' : all entries have tabs\n" unless $first;
