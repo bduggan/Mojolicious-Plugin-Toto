@@ -16,7 +16,7 @@ example used by twitter's bootstrap :
 
     http://twitter.github.com/bootstrap/examples/fluid.html
 
-The plugin provides a sidebar,  a nav bar, and also a
+The plugin provides a sidebar, a nav bar, and also a
 row of tabs underneath the name of an object.
 
 The row of tabs is an extension of BREAD or CRUD -- in a BREAD
@@ -33,11 +33,12 @@ to a particular side bar.
 
 After loading the toto plugin, the default layout is set to 'toto'.
 
-Defaults routes are generated for every combination of object + associated tab.
+Defaults routes are generated for every sidebar entry and tab entry.
 
-The names of the routes are of the form "controller/action".
+The names of the routes are of the form "controller/action", where
+controller is both the controller class and the model class.
 
-Templates in the directory templates/<object>/<tab>.html.ep will be used when
+Templates in the directory templates/<controller>/<action>.html.ep will be used when
 they exist.
 
 The stash values "object" and "tab" are set for each auto-generated route.
@@ -51,7 +52,9 @@ included in this distribution.
 =head2 Simple structure
 
 The "menu" format can be used to automatically generate
-the nav bar and side bar using the various types of objects.
+the nav bar, side bar and rows of tabs, using actions
+which correspond to many objects or actions which
+correspond to one object.
 
     #!/usr/bin/env perl
 
