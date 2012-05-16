@@ -4,7 +4,23 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
 
 =head1 SYNOPSIS
 
- ./Beer daemon
+    use Mojolicious::Lite;
+
+    plugin 'toto'
+         => menu => $menu;
+
+    app->start;
+
+OR
+    use Mojolicious::Lite;
+
+    plugin 'toto'
+         => nav => $nav,
+            sidebar => $sidebar,
+            tabs => $tabs;
+
+    app->start;
+
 
 =head1 DESCRIPTION
 
@@ -46,6 +62,26 @@ Also "noun" is set as an alias to "object".
 
 A version of twitter's bootstrap (<http://twitter.github.com/bootstrap>) is
 included in this distribution.
+
+=head1 OPTIONS
+
+In addition to "menu", "nav/sidebar/tabs", the following options are recognized :
+
+=over
+
+=item prefix
+
+    prefix => /my/subpath
+
+A prefix to prepend to the path for the toto routes.
+
+=item model_namespace
+
+    model_namespace => "Myapp::Model'
+
+A namespace for model classes : the model class will be camelized and appended to this.
+
+=back
 
 =head1 EXAMPLE
 
