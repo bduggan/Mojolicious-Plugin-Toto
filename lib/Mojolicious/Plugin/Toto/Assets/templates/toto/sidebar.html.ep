@@ -5,9 +5,9 @@
 % for my $a (@{ toto_config->{sidebar}{$n} } ) {
     % if ($a !~ /\//) {
         % my $is_selected = ((stash 'key') && (stash 'object') && ( (stash 'object') eq $a));
-        <li style='white-space:nowrap;'>
+        <li>
         <a <%== $is_selected ? q[style='color:black;'] : q[style='color:grey;'] %> href="javascript:void(0)">
-            selected <%= $a %>
+            <%= $a %>
             % if ($is_selected) {
                 <span stlye='float:right;'><i class="icon-chevron-right"></i></span>
             % }
