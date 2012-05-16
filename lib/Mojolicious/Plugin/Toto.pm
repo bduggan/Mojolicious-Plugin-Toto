@@ -195,7 +195,7 @@ use Cwd qw/abs_path/;
 use strict;
 use warnings;
 
-our $VERSION = 0.11;
+our $VERSION = 0.12;
 
 sub _render_static {
     my $c = shift;
@@ -230,7 +230,8 @@ sub _add_sidebar {
     my $found_controller = _cando($app->routes->namespace,$object,$tab);
 
     $app->log->debug("Adding sidebar route for $prefix/$object/$tab");
-    $app->log->debug("nav item: $nav_item, template: $template, controller? ".($found_controller // 'no') );
+    $app->log->debug("found template $template for $object/$tab ($nav_item)") if $template;
+    $app->log->debug("found controller for $object/$tab") if $found_controller;
 
     my $r = $app->routes->under(
         "$prefix/$object/$tab" => sub {

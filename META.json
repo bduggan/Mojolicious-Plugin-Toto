@@ -33,7 +33,7 @@
    "provides" : {
       "Mojolicious::Plugin::Toto" : {
          "file" : "lib/Mojolicious/Plugin/Toto.pm",
-         "version" : "0.11"
+         "version" : "0.12"
       },
       "Mojolicious::Plugin::Toto::Model" : {
          "file" : "lib/Mojolicious/Plugin/Toto/Model.pm",
