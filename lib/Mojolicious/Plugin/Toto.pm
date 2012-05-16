@@ -302,7 +302,8 @@ sub register {
                 $self->_add_sidebar($app,$prefix,$nav_item,$object,$action);
             } else {
                 my $first_tab;
-                my $tabs = $tabs->{$subnav_item} or die "no tabs for $subnav_item";
+                my $tabs = $tabs->{$subnav_item} or
+                     do { warn "# no tabs for $subnav_item"; next; };
                 die "tab row for '$subnav_item' appears more than once" if $tab_done{$subnav_item}++;
                 for my $tab (@$tabs) {
                     $first_tab ||= $tab;
