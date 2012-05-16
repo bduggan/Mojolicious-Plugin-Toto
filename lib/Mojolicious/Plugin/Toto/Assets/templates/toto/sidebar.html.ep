@@ -1,7 +1,8 @@
 <ul class="nav nav-list">
 
+% my $n = stash 'nav_item';
 % my @selected;
-% for my $a (@{ toto_config->{sidebar}{$nav_item} } ) {
+% for my $a (@{ toto_config->{sidebar}{$n} } ) {
     % if ($a !~ /\//) {
     % push @selected, $a;
     % next;

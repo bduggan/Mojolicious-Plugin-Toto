@@ -186,9 +186,16 @@ sub _add_sidebar {
     die "no tab for $object" unless $tab;
     die "no nav item" unless $nav_item;
 
-    my @found_template = map { glob "$_/$object.*" } @{ $app->renderer->paths };
+    my @found_template = (
+        ( map { glob "$_/$tab.*" } @{ $app->renderer->paths } ),
+        ( map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths } ),
+    );
+
     my $found_controller = _cando($app->routes->namespace,$object,$tab);
-    $app->log->debug("Adding sidebar route for $prefix/$object/$tab ($nav_item)");
+
+    $app->log->debug("Adding sidebar route for $prefix/$object/$tab");
+    $app->log->debug("nav item: $nav_item, template: @found_template, controller? ".($found_controller // 'no') );
+
     my $r = $app->routes->under(
         "$prefix/$object/$tab" => sub {
             my $c = shift;
