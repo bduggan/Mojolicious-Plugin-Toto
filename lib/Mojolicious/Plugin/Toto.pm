@@ -218,6 +218,7 @@ sub _to_noun {
 sub _add_sidebar {
     my $self = shift;
     my $app = shift;
+    my $routes = shift;
     my ($prefix, $nav_item, $object, $tab) = @_;
     die "no tab for $object" unless $tab;
     die "no nav item" unless $nav_item;
@@ -227,13 +228,13 @@ sub _add_sidebar {
         ( map { (glob "$_/$tab.*"        ) ? "$tab"         : () } @{ $app->renderer->paths } ),
     );
 
-    my $found_controller = _cando($app->routes->namespace,$object,$tab);
+    my $found_controller = _cando($routes->namespace,$object,$tab);
 
     $app->log->debug("Adding sidebar route for $prefix/$object/$tab");
     $app->log->debug("found template $template for $object/$tab ($nav_item)") if $template;
     $app->log->debug("found controller for $object/$tab") if $found_controller;
 
-    my $r = $app->routes->under(
+    my $r = $routes->under(
         "$prefix/$object/$tab" => sub {
             my $c = shift;
             $c->stash(template => ( $template || "plural" ));
@@ -322,6 +323,7 @@ sub register {
     my ($nav,$sidebar,$tabs) = @$conf{qw/nav sidebar tabs/};
 
     my $prefix = $conf->{prefix} || '';
+    my $routes = $conf->{routes} || $app->routes;
 
     my $base = catdir(abs_path(dirname(__FILE__)), qw/Toto Assets/);
     my $default_path = catdir($base,'templates');
@@ -343,7 +345,7 @@ sub register {
             my ( $object, $action ) = split '/', $subnav_item;
             if ($action) {
                 $first ||= $subnav_item;
-                $self->_add_sidebar($app,$prefix,$nav_item,$object,$action);
+                $self->_add_sidebar($app,$routes,$prefix,$nav_item,$object,$action);
             } else {
                 my $first_tab;
                 my $tabs = $tabs->{$subnav_item} or
@@ -354,7 +356,7 @@ sub register {
                     $self->_add_tab($app,$prefix,$nav_item,$object,$tab);
                 }
                 $app->log->debug("Will redirect $prefix/$object/default/key to $object/$first_tab/\$key");
-                $app->routes->get("$prefix/$object/default/*key" => sub {
+                $routes->get("$prefix/$object/default/*key" => sub {
                     my $c = shift;
                     my $key = $c->stash("key");
                     $c->redirect_to("$object/$first_tab/$key");
@@ -362,7 +364,7 @@ sub register {
             }
         }
         die "Could not find first route for nav item '$nav_item' : all entries have tabs\n" unless $first;
-        $app->routes->get(
+        $routes->get(
             $nav_item => sub {
                 my $c = shift;
                 $c->redirect_to($first);
@@ -370,7 +372,7 @@ sub register {
     }
 
     my $first_object = $conf->{nav}[0];
-    $app->routes->get("$prefix/" => sub { shift->redirect_to($first_object) } );
+    $routes->get("$prefix/" => sub { shift->redirect_to($first_object) } );
 
     for ($app) {
         $_->helper( toto_config => sub { $conf } );
