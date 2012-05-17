@@ -75,6 +75,12 @@ In addition to "menu", "nav/sidebar/tabs", the following options are recognized 
 
 A prefix to prepend to the path for the toto routes.
 
+=item head_route
+
+    head_route => $app->routes->find('top_route");
+
+A Mojolicious::Route::Route object to use as the parent for all routes.
+
 =item model_namespace
 
     model_namespace => "Myapp::Model'
