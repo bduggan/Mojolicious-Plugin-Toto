@@ -4,7 +4,7 @@
 % my @selected;
 % for my $a (@{ toto_config->{sidebar}{$n} } ) {
     % if ($a !~ /\//) {
-        % my $is_selected = (current_object eq $a);
+        % my $is_selected = (current_object eq $a) && (stash 'show_tabs') || (stash 'key');
         <li <%== $is_selected ? q[class="active"] : '' %>>
         <%= link_to "$a/default" => { key => "" } => begin =%>
             <%= $a %> <i class="icon-chevron-right"></i>
