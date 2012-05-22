@@ -1,0 +1,39 @@
+<div class="hero unit">
+
+<div class="well">
+Search for <%= a_printable(current_object) %> :
+<input type="text" data-provide="typeahead" id="ta">
+(and press tab)
+</div>
+
+<div id='result_wrapper' style='display:none;'>
+<b><span id='searchq'></span></b> :
+<div class="well" id="results"> </div>
+
+</div>
+</div>
+
+%# Uses https://github.com/mlmorg/bootstrap
+
+%= javascript begin
+$('#ta').typeahead({
+    source : function () {
+        $.get( "<%= url_for("$object/autocomplete") %>?q=" + encodeURIComponent($("#ta").val()),
+                [],
+                function(data,textStatus,jqXHR) {
+                    $("#result_wrapper").attr('style','display:block;');
+                    $("#searchq").html($("#ta").val());
+                    var out = '<ul class="nav nav-list">';
+                    $.each(data, function ( i, v ) {
+                        out = out + '<li>' + '<a href="' + v.href + '">' + v.name + '</a>' + '</li>';
+                    } );
+                    out = out + '</ul>';
+                    $("#results").html(out);
+                }
+            );
+    }
+})
+
+%= end
+
+

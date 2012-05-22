@@ -259,29 +259,27 @@ sub _add_tab {
     my $app = shift;
     my $routes = shift;
     my ($prefix, $nav_item, $object, $tab) = @_;
-    my @found_object_template = map { glob "$_/$object/$tab.*" } @{ $app->renderer->paths };
-    my @found_template = map { glob "$_/$tab.*" } @{ $app->renderer->paths };
+    my ($template) = (
+        ( map { (glob "$_/$object/$tab.*") ? "$object/$tab" : () } @{ $app->renderer->paths } ),
+        ( map { (glob "$_/$tab.*"        ) ? "$tab"         : () } @{ $app->renderer->paths } ),
+    );
     my $namespace = $routes->can('namespace') ? $routes->namespace : $routes->root->namespace;
     my $found_controller = _cando($namespace,$object,$tab);
     $app->log->debug("Adding route for $prefix/$object/$tab/*key");
     $app->log->debug("Found controller class for $object/$tab/key") if $found_controller;
-    $app->log->debug("Found template for $object/$tab/key") if @found_template || @found_object_template;
-    my $r = $routes->under("$prefix/$object/$tab/(*key)"  =>
-            sub {
+    $app->log->debug("Found template for $object/$tab/key ($template)") if $template;
+    my $r = $routes->under("$prefix/$object/$tab/(*key)"
+            => { key => '', show_tabs => 1 }
+            => sub {
                 my $c = shift;
                 $c->stash(object => $object);
                 $c->stash(noun => _to_noun($object));
                 $c->stash(tab => $tab);
-                my $key = lc $c->stash('key');
-                my @found_instance_template = map { glob "$_/$object/$key/$tab.*" } @{ $app->renderer->paths };
-                $c->stash(
-                    template => (
-                          0 + @found_instance_template ? "$object/$key/$tab"
-                        : 0 + @found_object_template ? "$object/$tab"
-                        : 0 + @found_template        ? $tab
-                        : "single"
-                    )
-                );
+                if (my $key = lc $c->stash('key')) {
+                    my @found = map { glob "$_/$object/$key/$tab.*" } @{ $app->renderer->paths };
+                    $template = "$object/$key/$tab" if @found;
+                }
+                $c->stash( template => $template || ($c->stash("key") ? "single" : "none_selected"));
                 my $instance = $c->current_instance;
                 $c->stash( instance => $instance );
                 $c->stash( nav_item => $nav_item );
@@ -365,11 +363,19 @@ sub register {
                     $self->_add_tab($app,$routes,$prefix,$nav_item,$object,$tab);
                 }
                 $app->log->debug("Will redirect $prefix/$object/default/key to $object/$first_tab/\$key");
-                $routes->get("$prefix/$object/default/*key" => sub {
+                $routes->get("$prefix/$object/default/*key" => { key => '' } => sub {
                     my $c = shift;
                     my $key = $c->stash("key");
-                    $c->redirect_to("$object/$first_tab/$key");
+                    $c->redirect_to("$object/$first_tab", key => $key);
                     } => "$object/default");
+                $routes->get(
+                    "$prefix/$object/autocomplete" => sub {
+                        my $c = shift;
+                        my $results = $c->model_class->search( q => $c->param('q'), object => $object, c => $c );
+                        # Expects an array ref of the form
+                        #    [ { name => 'foo', href => 'bar' }, ]
+                        $c->render_json( $results );
+                      } => "$object/autocomplete");
             }
         }
         die "Could not find first route for nav item '$nav_item' : all entries have tabs\n" unless $first;
@@ -418,6 +424,11 @@ sub register {
                 my $what = shift;
                 $what =~ s/_/ /g;
                 $what } );
+        $_->helper( a_printable => sub {
+                my $c = shift;
+                my $what = shift;
+                return ( ($what =~ /^[aeiou]/ ? "an " : "a ").$c->printable($what));
+            } );
     }
 
     $self;
