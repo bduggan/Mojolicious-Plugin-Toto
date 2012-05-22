@@ -279,7 +279,7 @@ sub _add_tab {
                     my @found = map { glob "$_/$object/$key/$tab.*" } @{ $app->renderer->paths };
                     $template = "$object/$key/$tab" if @found;
                 }
-                $c->stash( template => $template || ($c->stash("key") ? "single" : "none_selected"));
+                $c->stash( template => $c->stash("key") ? $template || "single" : "none_selected" );
                 my $instance = $c->current_instance;
                 $c->stash( instance => $instance );
                 $c->stash( nav_item => $nav_item );
@@ -355,6 +355,7 @@ sub register {
                 $self->_add_sidebar($app,$routes,$prefix,$nav_item,$object,$action);
             } else {
                 my $first_tab;
+                $first ||= "$object/default";
                 my $tabs = $tabs->{$subnav_item} or
                      do { warn "# no tabs for $subnav_item"; next; };
                 die "tab row for '$subnav_item' appears more than once" if $tab_done{$subnav_item}++;
@@ -363,15 +364,18 @@ sub register {
                     $self->_add_tab($app,$routes,$prefix,$nav_item,$object,$tab);
                 }
                 $app->log->debug("Will redirect $prefix/$object/default/key to $object/$first_tab/\$key");
+
                 $routes->get("$prefix/$object/default/*key" => { key => '' } => sub {
                     my $c = shift;
                     my $key = $c->stash("key");
                     $c->redirect_to("$object/$first_tab", key => $key);
                     } => "$object/default");
+
                 $routes->get(
-                    "$prefix/$object/autocomplete" => sub {
+                    "$prefix/$object/autocomplete" => { layout => "default" } => sub {
                         my $c = shift;
-                        my $results = $c->model_class->search( q => $c->param('q'), object => $object, c => $c );
+                        my $query = $c->param('q');
+                        my $results = $c->model_class->autocomplete( q => $query, object => $object, c => $c );
                         # Expects an array ref of the form
                         #    [ { name => 'foo', href => 'bar' }, ]
                         $c->render_json( $results );

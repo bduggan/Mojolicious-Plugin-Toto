@@ -2,7 +2,7 @@ package Mojolicious::Plugin::Toto::Model;
 use Mojo::Base -base;
 has 'key';
 
-sub search {
+sub autocomplete {
     my $class  = shift;
     my %args   = @_;
     my $q      = $args{q} or return;
