@@ -278,8 +278,12 @@ sub _add_tab {
                 if (my $key = lc $c->stash('key')) {
                     my @found = map { glob "$_/$object/$key/$tab.*" } @{ $app->renderer->paths };
                     $template = "$object/$key/$tab" if @found;
+                } else {
+                    $template = "none_selected";
+                    my @found =  map { glob "$_/$object/none_selected.*" } @{ $app->renderer->paths };
+                    $template = "$object/none_selected" if @found;
                 }
-                $c->stash( template => $c->stash("key") ? $template || "single" : "none_selected" );
+                $c->stash( template => $template || "single");
                 my $instance = $c->current_instance;
                 $c->stash( instance => $instance );
                 $c->stash( nav_item => $nav_item );
