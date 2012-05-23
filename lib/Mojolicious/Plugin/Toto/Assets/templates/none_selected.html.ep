@@ -36,14 +36,25 @@ div.myac ul li > a:hover {
 
 </style>
 
-<div class="hero unit">
+% if (!model_class->can("autocomplete")) {
+<div class="well">
+    Please select <%= a_printable(current_object) %> using one of the other menu items.
+% if ($self->app->routes->find(current_object."/list")) {
+<br>
+For instance, the
+%= link_to current_object."/list" => begin
+list
+% end
+page.
+% }
+</div>
 
-    <div class="well">
+% } else {
+
+<div class="well">
     Search for <%= a_printable(current_object) %>, then press tab to select one.<br>
     <input type="text" data-provide="typeahead" id="ta" style='width:100%;margin-bottom:0px;'>
     <div id="results" class="myac"> </div>
-    </div>
-
 </div>
 
 %# Uses https://github.com/mlmorg/bootstrap
@@ -68,4 +79,5 @@ $('#ta').typeahead({
 
 %= end
 
+% }
 

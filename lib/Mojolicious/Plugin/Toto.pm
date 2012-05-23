@@ -371,10 +371,11 @@ sub register {
                     $c->redirect_to("$object/$first_tab", key => $key);
                     } => "$object/default");
 
-                $routes->get(
+                 $routes->get(
                     "$prefix/$object/autocomplete" => { layout => "default" } => sub {
                         my $c = shift;
                         my $query = $c->param('q');
+                        return $c->render_not_found unless $c->model_class->can("autocomplete");
                         my $results = $c->model_class->autocomplete( q => $query, object => $object, c => $c );
                         # Expects an array ref of the form
                         #    [ { name => 'foo', href => 'bar' }, ]
