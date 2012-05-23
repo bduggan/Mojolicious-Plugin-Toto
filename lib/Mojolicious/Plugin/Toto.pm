@@ -259,7 +259,7 @@ sub _add_tab {
     my $app = shift;
     my $routes = shift;
     my ($prefix, $nav_item, $object, $tab) = @_;
-    my ($template) = (
+    my ($default_template) = (
         ( map { (glob "$_/$object/$tab.*") ? "$object/$tab" : () } @{ $app->renderer->paths } ),
         ( map { (glob "$_/$tab.*"        ) ? "$tab"         : () } @{ $app->renderer->paths } ),
     );
@@ -267,11 +267,12 @@ sub _add_tab {
     my $found_controller = _cando($namespace,$object,$tab);
     $app->log->debug("Adding route for $prefix/$object/$tab/*key");
     $app->log->debug("Found controller class for $object/$tab/key") if $found_controller;
-    $app->log->debug("Found template for $object/$tab/key ($template)") if $template;
+    $app->log->debug("Found default template for $object/$tab/key ($default_template)") if $default_template;
     my $r = $routes->under("$prefix/$object/$tab/(*key)"
             => { key => '', show_tabs => 1 }
             => sub {
                 my $c = shift;
+                my $template = $default_template;
                 $c->stash(object => $object);
                 $c->stash(noun => _to_noun($object));
                 $c->stash(tab => $tab);
