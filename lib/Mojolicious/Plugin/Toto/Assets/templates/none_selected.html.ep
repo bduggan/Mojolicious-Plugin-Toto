@@ -1,16 +1,49 @@
+
+<style>
+
+div.myac {
+  background-color: #ffffff;
+  border-color: #ccc;
+  border-color: rgba(0, 0, 0, 0.2);
+  border-style: solid;
+  border-width: 1px;
+  -webkit-border-radius: 0 0 5px 5px;
+  -moz-border-radius: 0 0 5px 5px;
+  border-radius: 0 0 5px 5px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+  *border-right-width: 2px;
+  *border-bottom-width: 2px;
+}
+
+div.myac ul {
+  list-style: none;
+}
+
+div.myac ul li > a {
+    display: block;
+}
+
+div.myac ul li > a:hover {
+  color: #ffffff;
+  text-decoration: none;
+  background-color: #0088cc;
+}
+
+</style>
+
 <div class="hero unit">
 
-<div class="well">
-Search for <%= a_printable(current_object) %> :
-<input type="text" data-provide="typeahead" id="ta">
-(and press tab)
-</div>
+    <div class="well">
+    Search for <%= a_printable(current_object) %>, then press tab to select one.<br>
+    <input type="text" data-provide="typeahead" id="ta" style='width:100%;margin-bottom:0px;'>
+    <div id="results" class="myac"> </div>
+    </div>
 
-<div id='result_wrapper' style='display:none;'>
-<b><span id='searchq'></span></b> :
-<div class="well" id="results"> </div>
-
-</div>
 </div>
 
 %# Uses https://github.com/mlmorg/bootstrap
@@ -21,9 +54,8 @@ $('#ta').typeahead({
         $.get( "<%= url_for("$object/autocomplete") %>?q=" + encodeURIComponent($("#ta").val()),
                 [],
                 function(data,textStatus,jqXHR) {
-                    $("#result_wrapper").attr('style','display:block;');
                     $("#searchq").html($("#ta").val());
-                    var out = '<ul class="nav nav-list">';
+                    var out = '<ul>';
                     $.each(data, function ( i, v ) {
                         out = out + '<li>' + '<a href="' + v.href + '">' + v.name + '</a>' + '</li>';
                     } );
