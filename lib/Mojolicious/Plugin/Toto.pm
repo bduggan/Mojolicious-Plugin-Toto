@@ -30,7 +30,7 @@ of routes for a Mojolicious or Mojolicious::Lite app
 The navigational structure is a slight variation of this
 example used by twitter's bootstrap :
 
-    http://twitter.github.com/bootstrap/examples/fluid.html
+    L<http://twitter.github.com/bootstrap/examples/fluid.html>
 
 The plugin provides a sidebar, a nav bar, and also a
 row of tabs underneath the name of an object.
@@ -54,13 +54,28 @@ Defaults routes are generated for every sidebar entry and tab entry.
 The names of the routes are of the form "controller/action", where
 controller is both the controller class and the model class.
 
-Templates in the directory templates/<controller>/<action>.html.ep will be used when
-they exist.
+The following templates will be automagically used, if found
+(in order of preference) :
+
+  - templates/<controller>/<instance>/<action>.html.ep
+  - templates/<controller>/<action>.html.ep
+  - templates/<action>.html.ep
+
+Or if no object is selected :
+
+  - templates/<controller>/none_selected.html.ep
+
+(This one links connects to "list" and "search" if
+these routes exist, and provides an autocomplete
+form if the model class has an autocomplete() method.)
+
+Also the templates "single" and "plural" are built-in
+fallbacks for the two cases described above.
 
 The stash values "object" and "tab" are set for each auto-generated route.
 Also "noun" is set as an alias to "object".
 
-A version of twitter's bootstrap (<http://twitter.github.com/bootstrap>) is
+A version of twitter's L<bootstrap|http://twitter.github.com/bootstrap> is
 included in this distribution.
 
 =head1 OPTIONS
@@ -179,14 +194,18 @@ something other than "toto', e.g.
 
 This module is experimental.  The API may change without notice.  Feedback is welcome!
 
+=head1 TODO
+
+Document the autcomplete API.
+
 =head1 AUTHOR
 
 Brian Duggan C<bduggan@matatu.org>
 
 =head1 SEE ALSO
 
-http://twitter.github.com/bootstrap/examples/fluid.html
-http://www.beer.dotcloud.com
+ L<http://twitter.github.com/bootstrap/examples/fluid.html>
+ L<http://www.beer.dotcloud.com>
 
 =cut
 
