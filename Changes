@@ -45,3 +45,6 @@ Revision history for Mojolicious-Plugin-Toto
 0.14   Thu May 17 10:47:19 EDT 2012
        Added head_route param.
 
+0.15   Thu May 24 12:00:03 EDT 2012
+       autocomplete, none_selected,
+       dropdowns in sidebar
