@@ -39,14 +39,18 @@ div.myac ul li > a:hover {
 % if (!model_class->can("autocomplete")) {
 <div class="well">
     Please select <%= a_printable(current_object) %> using one of the other menu items.
+
 % if ($self->app->routes->find(current_object."/list")) {
-<br>
-For instance, the
-%= link_to current_object."/list" => begin
-list
-% end
-page.
+    <br> For instance, the <%= link_to current_object."/list" => begin %> list <% end %> page.
+    % if ($self->app->routes->find(current_object."/search")) {
+        <br> Or the <%= link_to current_object."/search" => begin %> search <% end %> page.
+    % }
+% } else {
+    % if ($self->app->routes->find(current_object."/search")) {
+        <br> For instance, the <%= link_to current_object."/search" => begin %> search <% end %> page.
+    % }
 % }
+
 </div>
 
 % } else {
