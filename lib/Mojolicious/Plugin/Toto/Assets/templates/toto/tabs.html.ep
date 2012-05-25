@@ -3,10 +3,10 @@
     <center>
 % if (stash 'key') {
 <div class="row-fluid">
-<%= link_to current_object()."/".current_tab, { key => "" } => class => "close" => begin =%>
-&times;
-%= end
         <%= ucfirst(printable(current_object)) %> :  <%= stash 'key' %>
+<%= link_to current_object()."/".current_tab, { key => "" } => class => "btn btn-mini" => style => 'float:right;' => begin =%>
+change <%= printable(current_object) %>
+<%= end %>
 </div>
 % } else {
 <div class="row-fluid" style='color:grey;'>
