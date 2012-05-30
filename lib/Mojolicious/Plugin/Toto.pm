@@ -279,8 +279,8 @@ sub _add_tab {
     my $routes = shift;
     my ($prefix, $nav_item, $object, $tab) = @_;
     my ($default_template) = (
-        ( map { (-e "$_/$object/$tab.*") ? "$object/$tab" : () } @{ $app->renderer->paths } ),
-        ( map { (-e "$_/$tab.*"        ) ? "$tab"         : () } @{ $app->renderer->paths } ),
+        ( map { (-e "$_/$object/$tab.html.ep") ? "$object/$tab" : () } @{ $app->renderer->paths } ),
+        ( map { (-e "$_/$tab.html.ep"        ) ? "$tab"         : () } @{ $app->renderer->paths } ),
     );
     my $namespace = $routes->can('namespace') ? $routes->namespace : $routes->root->namespace;
     my $found_controller = _cando($namespace,$object,$tab);
@@ -296,12 +296,10 @@ sub _add_tab {
                 $c->stash(noun => _to_noun($object));
                 $c->stash(tab => $tab);
                 if (my $key = lc $c->stash('key')) {
-                    my @found = map { -e "$_/$object/$key/$tab.*" } @{ $app->renderer->paths };
-                    $template = "$object/$key/$tab" if @found;
+                    $template = "$object/$key/$tab" if grep { -e "$_/$object/$key/$tab.html.ep" } @{ $app->renderer->paths };
                 } else {
                     $template = "none_selected";
-                    my @found =  map { -e "$_/$object/none_selected.*" } @{ $app->renderer->paths };
-                    $template = "$object/none_selected" if @found;
+                    $template = "$object/none_selected" if grep { -e "$_/$object/none_selected.html.ep" } @{ $app->renderer->paths };
                 }
                 $c->stash( template => $template || "single");
                 my $instance = $c->current_instance;
