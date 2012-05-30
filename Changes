@@ -48,3 +48,8 @@ Revision history for Mojolicious-Plugin-Toto
 0.15   Thu May 24 12:00:03 EDT 2012
        autocomplete, none_selected,
        dropdowns in sidebar
+
+0.16   Wed May 30 15:38:49 EDT 2012
+       bug fixes
+        - autocomplete goes to current tab
+        - look for the existence of $template.html.ep
