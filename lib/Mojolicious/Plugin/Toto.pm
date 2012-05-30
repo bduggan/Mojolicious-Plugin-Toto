@@ -249,8 +249,8 @@ sub _add_sidebar {
     die "no nav item" unless $nav_item;
 
     my ($template) = (
-        ( map { (glob "$_/$object/$tab.*") ? "$object/$tab" : () } @{ $app->renderer->paths } ),
-        ( map { (glob "$_/$tab.*"        ) ? "$tab"         : () } @{ $app->renderer->paths } ),
+        ( map { (-e "$_/$object/$tab.html.ep") ? "$object/$tab" : () } @{ $app->renderer->paths } ),
+        ( map { (-e "$_/$tab.html.ep"        ) ? "$tab"         : () } @{ $app->renderer->paths } ),
     );
 
     my $namespace = $routes->can('namespace') ? $routes->namespace : $routes->root->namespace;
@@ -279,8 +279,8 @@ sub _add_tab {
     my $routes = shift;
     my ($prefix, $nav_item, $object, $tab) = @_;
     my ($default_template) = (
-        ( map { (glob "$_/$object/$tab.*") ? "$object/$tab" : () } @{ $app->renderer->paths } ),
-        ( map { (glob "$_/$tab.*"        ) ? "$tab"         : () } @{ $app->renderer->paths } ),
+        ( map { (-e "$_/$object/$tab.*") ? "$object/$tab" : () } @{ $app->renderer->paths } ),
+        ( map { (-e "$_/$tab.*"        ) ? "$tab"         : () } @{ $app->renderer->paths } ),
     );
     my $namespace = $routes->can('namespace') ? $routes->namespace : $routes->root->namespace;
     my $found_controller = _cando($namespace,$object,$tab);
@@ -296,11 +296,11 @@ sub _add_tab {
                 $c->stash(noun => _to_noun($object));
                 $c->stash(tab => $tab);
                 if (my $key = lc $c->stash('key')) {
-                    my @found = map { glob "$_/$object/$key/$tab.*" } @{ $app->renderer->paths };
+                    my @found = map { -e "$_/$object/$key/$tab.*" } @{ $app->renderer->paths };
                     $template = "$object/$key/$tab" if @found;
                 } else {
                     $template = "none_selected";
-                    my @found =  map { glob "$_/$object/none_selected.*" } @{ $app->renderer->paths };
+                    my @found =  map { -e "$_/$object/none_selected.*" } @{ $app->renderer->paths };
                     $template = "$object/none_selected" if @found;
                 }
                 $c->stash( template => $template || "single");
