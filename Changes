@@ -53,3 +53,7 @@ Revision history for Mojolicious-Plugin-Toto
        bug fixes
         - autocomplete goes to current tab
         - look for the existence of $template.html.ep
+0.17   Thu May 31 16:52:55 EDT 2012
+       - stringification of objects
+       - support object-specific change_button
+
