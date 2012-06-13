@@ -3,6 +3,7 @@ Changes
 eg/beer.pl
 eg/beer_menu.pl
 eg/custom.pl
+eg/from_pod.pl
 eg/litte.pl
 eg/random.pl
 ignore.txt
