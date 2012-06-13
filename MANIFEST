@@ -17,6 +17,7 @@ lib/Mojolicious/Plugin/Toto/Assets/public/bootstrap/js/application.js
 lib/Mojolicious/Plugin/Toto/Assets/public/bootstrap/js/bootstrap-dropdown.js
 lib/Mojolicious/Plugin/Toto/Assets/public/bootstrap/js/bootstrap-typeahead.js
 lib/Mojolicious/Plugin/Toto/Assets/public/bootstrap/js/bootstrap.min.js
+lib/Mojolicious/Plugin/Toto/Assets/templates/change_button.html.ep
 lib/Mojolicious/Plugin/Toto/Assets/templates/layouts/toto.html.ep
 lib/Mojolicious/Plugin/Toto/Assets/templates/none_selected.html.ep
 lib/Mojolicious/Plugin/Toto/Assets/templates/plural.html.ep
