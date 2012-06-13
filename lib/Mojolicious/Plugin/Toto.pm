@@ -4,23 +4,24 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
 
 =head1 SYNOPSIS
 
+    #!/usr/bin/env perl
+
     use Mojolicious::Lite;
 
-    plugin 'toto'
-         => menu => $menu;
+    plugin 'toto' =>
+            nav => [ qw{brewery pub beer} ],
+            sidebar => {
+                brewery => [ qw{brewery/list brewery/search brewery} ],
+                pub     => [ qw{pub/list pub/search pub} ],
+                beer    => [ qw{beer/list beer/search beer} ],
+            },
+            tabs => {
+                brewery => [qw/view edit delete/],
+                pub     => [qw/view edit delete/],
+                beer    => [qw/view edit delete/],
+            };
 
     app->start;
-
-OR
-    use Mojolicious::Lite;
-
-    plugin 'toto'
-         => nav => $nav,
-            sidebar => $sidebar,
-            tabs => $tabs;
-
-    app->start;
-
 
 =head1 DESCRIPTION
 
@@ -105,6 +106,14 @@ A namespace for model classes : the model class will be camelized and appended t
 =back
 
 =head1 EXAMPLE
+
+There are two different structures that toto will accept.
+One is intended for a simple CRUD structure, where each
+object has its own top level navigational item and
+a variety of possible actions.  The other form is intended
+for a more complex situation in which the list of objects
+does not correspond to the list of choices in the navigation
+bar.
 
 =head2 Simple structure
 
