@@ -398,7 +398,7 @@ sub register {
                         my $c = shift;
                         my $query = $c->param('q');
                         return $c->render_not_found unless $c->model_class->can("autocomplete");
-                        my $results = $c->model_class->autocomplete( q => $query, object => $object, c => $c );
+                        my $results = $c->model_class->autocomplete( q => $query, object => $object, c => $c, tab => $c->param('tab') );
                         # Expects an array ref of the form
                         #    [ { name => 'foo', href => 'bar' }, ]
                         $c->render_json( $results );
