@@ -28,10 +28,9 @@ Mojolicious::Plugin::Toto - A simple tab and object based site structure
 This plugin provides a navigational structure and a default set
 of routes for a Mojolicious or Mojolicious::Lite app
 
-The navigational structure is a slight variation of this
-example used by twitter's bootstrap :
-
-    L<http://twitter.github.com/bootstrap/examples/fluid.html>
+The navigational structure is a slight variation of
+L<this|http://twitter.github.com/bootstrap/examples/fluid.html>
+example used by twitter's L<bootstrap|http://twitter.github.com/bootstrap>.
 
 The plugin provides a sidebar, a nav bar, and also a
 row of tabs underneath the name of an object.
@@ -213,8 +212,7 @@ Brian Duggan C<bduggan@matatu.org>
 
 =head1 SEE ALSO
 
- L<http://twitter.github.com/bootstrap/examples/fluid.html>
- L<http://www.beer.dotcloud.com>
+L<beer.dotcloud.com|http://www.beer.dotcloud.com>
 
 =cut
 
