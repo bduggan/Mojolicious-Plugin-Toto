@@ -259,6 +259,8 @@ sub _add_sidebar {
         ( map { (-e "$_/$object/$tab.html.ep") ? "$object/$tab" : () } @{ $app->renderer->paths } ),
         ( map { (-e "$_/$tab.html.ep"        ) ? "$tab"         : () } @{ $app->renderer->paths } ),
     );
+    $template = $tab if $app->renderer->get_data_template({},"$tab.html.ep");
+    $template = "$object/$tab" if $app->renderer->get_data_template({}, "$object/$tab.html.ep");
 
     my $namespace = $routes->can('namespace') ? $routes->namespace : $routes->root->namespace;
     my $found_controller = _cando($namespace,$object,$tab);
@@ -270,7 +272,7 @@ sub _add_sidebar {
     my $r = $routes->under(
         "$prefix/$object/$tab" => sub {
             my $c = shift;
-            $c->stash(template => ( $template || "plural" ));
+            $c->stash->{template} = $template || "plural";
             $c->stash(object     => $object);
             $c->stash(noun       => $object);
             $c->stash(tab        => $tab);
@@ -289,6 +291,9 @@ sub _add_tab {
         ( map { (-e "$_/$object/$tab.html.ep") ? "$object/$tab" : () } @{ $app->renderer->paths } ),
         ( map { (-e "$_/$tab.html.ep"        ) ? "$tab"         : () } @{ $app->renderer->paths } ),
     );
+    $default_template = $tab if $app->renderer->get_data_template(template => $tab);
+    $default_template = "$object/$tab" if $app->renderer->get_data_template(template => "$object/$tab");
+
     my $namespace = $routes->can('namespace') ? $routes->namespace : $routes->root->namespace;
     my $found_controller = _cando($namespace,$object,$tab);
     $app->log->debug("Adding route for $prefix/$object/$tab/*key");
@@ -308,7 +313,7 @@ sub _add_tab {
                     $template = "none_selected";
                     $template = "$object/none_selected" if grep { -e "$_/$object/none_selected.html.ep" } @{ $app->renderer->paths };
                 }
-                $c->stash( template => $template || "single");
+                $c->stash->{template} = $template || "single";
                 my $instance = $c->current_instance;
                 $c->stash( instance => $instance );
                 $c->stash( nav_item => $nav_item );
