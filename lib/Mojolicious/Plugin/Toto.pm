@@ -291,8 +291,8 @@ sub _add_tab {
         ( map { (-e "$_/$object/$tab.html.ep") ? "$object/$tab" : () } @{ $app->renderer->paths } ),
         ( map { (-e "$_/$tab.html.ep"        ) ? "$tab"         : () } @{ $app->renderer->paths } ),
     );
-    $default_template = $tab if $app->renderer->get_data_template(template => $tab);
-    $default_template = "$object/$tab" if $app->renderer->get_data_template(template => "$object/$tab");
+    $default_template = $tab if $app->renderer->get_data_template({}, "$tab.html.ep");
+    $default_template = "$object/$tab" if $app->renderer->get_data_template({}, "$object/$tab.html.ep");
 
     my $namespace = $routes->can('namespace') ? $routes->namespace : $routes->root->namespace;
     my $found_controller = _cando($namespace,$object,$tab);
@@ -307,8 +307,14 @@ sub _add_tab {
                 $c->stash(object => $object);
                 $c->stash(noun => _to_noun($object));
                 $c->stash(tab => $tab);
-                if (my $key = lc $c->stash('key')) {
-                    $template = "$object/$key/$tab" if grep { -e "$_/$object/$key/$tab.html.ep" } @{ $app->renderer->paths };
+                if ( my $key = lc $c->stash('key') ) {
+                    if ( ( grep { -e "$_/$object/$key/$tab.html.ep" }
+                            @{ $app->renderer->paths }
+                        )
+                        || $c->app->renderer->get_data_template( {},
+                            "$object/$key/$tab.html.ep" )) {
+                        $template = "$object/$key/$tab";
+                    }
                 } else {
                     $template = "none_selected";
                     $template = "$object/none_selected" if grep { -e "$_/$object/none_selected.html.ep" } @{ $app->renderer->paths };
