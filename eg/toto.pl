@@ -42,7 +42,7 @@ __DATA__
 <h6>
 <%= link_to "https://metacpan.org/module/Mojolicious::Plugin::Toto" => begin %>Mojolicious-Plugin-Toto<%= end %> 
 uses
-<%= link_to "https://metacpan.org/module/Mojolicious" => begin %>Mojolicious<%= end %> and
+<%= link_to "http://mojolicio.us" => begin %>Mojolicious<%= end %> and
 twitter bootstrap's <%= link_to "http://twitter.github.com/bootstrap/examples/fluid.html" => begin %>fluid layout example<%= end %>
 to create a navigational structure and set of routes for a web application.
 </h6>
@@ -69,7 +69,7 @@ Each page in an application created with toto has :
 <%= link_to "element/default" => { key => "template" } => begin %>
 templates<%= end %>.</p>
 <p>The toto
-<%= link_to "element/default" => { key => "template" } => begin %>
+<%= link_to "element/default" => { key => "layout" } => begin %>
 layout<%= end %> generates the navigational structure.</p>
 <p>A number of
 <%= link_to "element/default" => { key => "helpers" } => begin %>
@@ -233,4 +233,28 @@ current_instance.
 <dt>$<%= $noun %> (==${$noun})</dt>
 <dd><%= eval '$'.$noun %></dd>
 </dl>
+
+@@ element/layout/description.html.ep
+Toto sets the default layout to be "toto", e.g.
+<pre class="code">
+  $app->defaults(layout => "toto")
+</pre>
+The layout and supporting files, are builded with
+the plugin and used as defaults, but may be overridden.
+Some stash values may be set for minimal customization :
+<ul>
+<li>head</li>
+<li>brand</li>
+</ul>
+(or of course another layout can used in place of the
+provided one).
+
+@@ element/layout/example.html.ep
+Below is the default layout (layouts/toto.html.ep).
+<pre class="code">
+% my $path = $self->app->renderer->template_path({template => "layouts/toto", format => "html", handler => 'ep'});
+%= Mojo::Asset::File->new(path => $path)->slurp;
+</pre>
+
+
 
