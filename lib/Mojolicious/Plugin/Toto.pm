@@ -304,10 +304,11 @@ sub _add_tab {
             => sub {
                 my $c = shift;
                 my $template = $default_template;
+                my $key = lc $c->stash('key');
                 $c->stash(object => $object);
                 $c->stash(noun => _to_noun($object));
                 $c->stash(tab => $tab);
-                if ( my $key = lc $c->stash('key') ) {
+                if ( $key ) {
                     if ( ( grep { -e "$_/$object/$key/$tab.html.ep" }
                             @{ $app->renderer->paths }
                         )
@@ -324,7 +325,8 @@ sub _add_tab {
                 $c->stash( instance => $instance );
                 $c->stash( nav_item => $nav_item );
                 $c->stash( $object  => $instance );
-                1;
+                $c->render unless $key;
+                $key ? 1 : 0;
               }
             )->any;
       $r = $r->to("$object#$tab") if $found_controller;
