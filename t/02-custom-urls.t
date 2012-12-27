@@ -13,6 +13,8 @@ use Test::More;
 use Mojolicious::Lite;
 use Test::Mojo;
 
+app->routes->namespaces(['main']);
+
 my $menu = [
     beer => {
         many => [qw/search browse/],
