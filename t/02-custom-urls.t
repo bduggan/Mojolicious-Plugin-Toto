@@ -57,5 +57,6 @@ done_testing();
 
 __DATA__
 @@ not_found.html.ep
+% layout 'default';
 NOT FOUND : <%= $self->req->url->path %>
 
