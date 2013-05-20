@@ -210,10 +210,6 @@ Document the autcomplete API.
 
 Brian Duggan C<bduggan@matatu.org>
 
-=head1 SEE ALSO
-
-L<beer.dotcloud.com|http://www.beer.dotcloud.com>
-
 =cut
 
 package Mojolicious::Plugin::Toto;
