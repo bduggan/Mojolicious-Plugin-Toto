@@ -421,7 +421,7 @@ sub register {
                         my $results = $c->model_class->autocomplete( q => $query, object => $object, c => $c, tab => $c->param('tab') );
                         # Expects an array ref of the form
                         #    [ { name => 'foo', href => 'bar' }, ]
-                        $c->render_json( $results );
+                        $c->render( json => $results );
                       } => "$object/autocomplete");
             }
         }
