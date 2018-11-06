@@ -9,6 +9,7 @@ my $builder = Module::Build->new(
     dist_version_from   => 'lib/Mojolicious/Plugin/Toto.pm',
     requires            => {
             'Mojolicious' => '3.84',
+			'perl'        => '5.6.0',
         },
     build_requires => {
         'Test::More' => 0,
