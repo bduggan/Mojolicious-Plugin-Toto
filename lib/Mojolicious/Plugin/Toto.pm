@@ -210,6 +210,11 @@ Document the autcomplete API.
 
 Brian Duggan C<bduggan@matatu.org>
 
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
 =cut
 
 package Mojolicious::Plugin::Toto;
